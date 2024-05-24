@@ -56,10 +56,13 @@ def should_include(filepath, patterns, root, include_mode=False):
     return not relative_filepath.split(os.sep)[0].startswith('.')
 
 
-def gather_file_paths(input_directory, output_filepath, ignore_patterns=None, include_patterns=None):
+def gather_file_paths(input_directory, output_filepath, ignore_file=None, include_file=None):
     """
     Gather file paths in the input directory, excluding the output file and applying pattern rules.
     """
+    ignore_patterns = read_patterns(ignore_file) if ignore_file else None
+    include_patterns = read_patterns(include_file) if include_file else None
+
     file_paths = []
     # Get the absolute path of the input directory
     root_directory = os.path.abspath(input_directory)
@@ -84,13 +87,13 @@ def gather_file_paths(input_directory, output_filepath, ignore_patterns=None, in
     return file_paths
 
 
-def get_checksums(input_directory, output_filepath, ignore_patterns=None, include_patterns=None):
+def get_checksums(input_directory, output_filepath, ignore_file=None, include_file=None):
     """
     Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore or include.
     """
 
-    file_paths = gather_file_paths(input_directory, output_filepath, ignore_patterns, include_patterns)
-
+    file_paths = gather_file_paths(input_directory, output_filepath, ignore_file, include_file)
+    
     with open(output_filepath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["filepath", "filename", "md5"])
@@ -114,10 +117,7 @@ def main():
     if args.ignore_file and args.include_file:
         parser.error("Cannot use --ignore-file and --include-file simultaneously")
 
-    ignore_patterns = read_patterns(args.ignore_file) if args.ignore_file else None
-    include_patterns = read_patterns(args.include_file) if args.include_file else None
-
-    get_checksums(args.input_dir, args.output_file, ignore_patterns, include_patterns)
+    get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_file)
 
 if __name__ == "__main__":
     main()
