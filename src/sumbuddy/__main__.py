@@ -35,7 +35,7 @@ def main():
     parser.add_argument("--output-file", required=True, help="Filepath for the output CSV file")
     parser.add_argument("--ignore-file", help="Filepath for the ignore patterns file")
     parser.add_argument("--include-file", help="Filepath for the include patterns file")
-    parser.add_argument("--algorithm", default="md5", help="Hash algorithm to use (default: md5)")
+    parser.add_argument("--algorithm", default="md5", help="Hash algorithm to use (default: md5, see options with 'hashlib.algorithms_available')")
 
     args = parser.parse_args()
 
