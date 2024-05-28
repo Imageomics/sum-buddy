@@ -33,7 +33,7 @@ options:
   --include-file INCLUDE_FILE
                         Filepath for the include patterns file
   --algorithm ALGORITHM
-                        Hash algorithm to use (default: md5)
+                        Hash algorithm to use (default: md5, see options with 'hashlib.algorithms_available')
 ```
 
 ### Python Package Usage
