@@ -15,9 +15,3 @@ class Hasher:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_func.update(chunk)
         return hash_func.hexdigest()
-
-    def md5_checksum(self, file_path):
-        """
-        Calculate the MD5 checksum of a file.
-        """
-        return self.checksum(file_path, 'md5')

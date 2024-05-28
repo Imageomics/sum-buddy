@@ -1,5 +1,5 @@
 # sum-buddy
-Command-line package to generate a CSV with filepath, filename, and MD5 checksum for all contents of given directory.
+Command-line package to generate a CSV with filepath, filename, and checksum for all contents of given directory.
 
 
 ## Requirements
@@ -18,9 +18,9 @@ pip install git+https://github.com/Imageomics/sum-buddy
 ### Command Line Usage
 
 ```
-usage: sum-buddy [-h] --input-dir INPUT_DIR --output-file OUTPUT_FILE [--ignore-file IGNORE_FILE] [--include-file INCLUDE_FILE]
+usage: sum-buddy [-h] --input-dir INPUT_DIR --output-file OUTPUT_FILE [--ignore-file IGNORE_FILE] [--include-file INCLUDE_FILE] [--algorithm ALGORITHM]
 
-Generate CSV with filepath, filename, and MD5 checksums for all files in a given directory
+Generate CSV with filepath, filename, and checksums for all files in a given directory
 
 options:
   -h, --help            show this help message and exit
@@ -32,6 +32,8 @@ options:
                         Filepath for the ignore patterns file
   --include-file INCLUDE_FILE
                         Filepath for the include patterns file
+  --algorithm ALGORITHM
+                        Hash algorithm to use (default: md5)
 ```
 
 ### Python Package Usage
@@ -42,9 +44,10 @@ input_dir = "path/to/content/dir"
 output_file = "path/to/checksums.csv"
 ignore_file = ".sbignore"   # Optional
 include_file = ".sbinclude" # Optional
+algorighm = "md5"           # Optional, possible inputs include list elements returned by hashlib.algorithms_available
 
 # To generate checksums and save to a CSV file
-get_checksums(input_dir, output_file, ignore_file)
+get_checksums(input_dir, output_file, ignore_file, algorithm)
 # or get_checksums(input_dir, output_file, include_file)
 # or get_checksums(input_dir, output_file)
 

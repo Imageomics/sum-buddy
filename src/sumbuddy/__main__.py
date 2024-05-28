@@ -6,7 +6,7 @@ import csv
 from tqdm import tqdm
 import os
 
-def get_checksums(input_directory, output_filepath, ignore_file=None, include_file=None):
+def get_checksums(input_directory, output_filepath, ignore_file=None, include_file=None, algorithm='md5'):
     """
     Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore or include.
     """
@@ -18,10 +18,10 @@ def get_checksums(input_directory, output_filepath, ignore_file=None, include_fi
     output_file_abs_path = os.path.abspath(output_filepath)
     file_paths = [path for path in file_paths if os.path.abspath(path) != output_file_abs_path]
 
-    hasher = Hasher()
+    hasher = Hasher(algorithm)
     with open(output_filepath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["filepath", "filename", "checksum"])
+        writer.writerow(["filepath", "filename", f"{algorithm}"])
 
         for file_path in tqdm(file_paths, desc="Calculating checksums"):
             checksum = hasher.checksum(file_path)
@@ -35,13 +35,14 @@ def main():
     parser.add_argument("--output-file", required=True, help="Filepath for the output CSV file")
     parser.add_argument("--ignore-file", help="Filepath for the ignore patterns file")
     parser.add_argument("--include-file", help="Filepath for the include patterns file")
+    parser.add_argument("--algorithm", default="md5", help="Hash algorithm to use (default: md5)")
 
     args = parser.parse_args()
 
     if args.ignore_file and args.include_file:
         parser.error("Cannot use --ignore-file and --include-file simultaneously")
 
-    get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_file)
+    get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_file, args.algorithm)
 
 if __name__ == "__main__":
     main()
