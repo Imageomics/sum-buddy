@@ -8,7 +8,15 @@ import os
 
 def get_checksums(input_directory, output_filepath, ignore_file=None, include_file=None, algorithm='md5'):
     """
-    Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore or include.
+    Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore or include. Checksum column is labeled by the selected algorithm (e.g., 'md5' or 'sha256').
+    
+    Parameters:
+    ------------
+    input_directory - String. Directory to traverse for files.
+    output_filepath - String. Filepath for the output CSV file.
+    ignore_file - String [optional]. Filepath for the ignore patterns file. Dotfiles are ignored by default and output file won't be hashed.
+    include_file - String [optional]. Filepath for the include patterns file.
+    algorithm - String. Algorithm to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
     """
     filter_manager = Filter()
     mapper = Mapper(filter_manager)
