@@ -7,6 +7,15 @@ class Hasher:
     def checksum(self, file_path, algorithm=None):
         """
         Calculate the checksum of a file using the specified algorithm.
+        
+        Parameters:
+        ------------
+        file_path - String. Path to file to apply checksum function.
+        algorithm - String. Hash function to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
+        
+        Returns:
+        ---------
+        hashlib.<algorithm>.hexdigest - String. Hash of file.
         """
         if algorithm is None:
             algorithm = self.algorithm
