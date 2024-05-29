@@ -7,7 +7,17 @@ class Mapper:
 
     def gather_file_paths(self, input_directory, ignore_file=None, include_file=None):
         """
-        Gather file paths in the input directory, applying pattern rules.
+        Generate list of file paths in the input directory based on pattern rules (include or exclude).
+        
+        Parameters:
+        ------------
+        input_directory - String. Directory to traverse for files.
+        ignore_file - String [optional]. Filepath for the ignore patterns file. Dotfiles are ignored by default and output file won't be hashed.
+        include_file - String [optional]. Filepath for the include patterns file.
+        
+        Returns:
+        ---------
+        file_paths - List. Files in input_directory that are included (i.e., files matching  include_file patterns or not matching ignore_file patterns).
         """
         ignore_patterns = self.filter_manager.read_patterns(ignore_file) if ignore_file else None
         include_patterns = self.filter_manager.read_patterns(include_file) if include_file else None
