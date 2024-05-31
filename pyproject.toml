@@ -22,7 +22,12 @@ classifiers = [
 ]
 dependencies = [
   "tqdm",
+  "pathspec"
 ]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
 keywords = [
   "checksum",
   "md5",
