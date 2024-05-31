@@ -1,0 +1,5 @@
+filepath,filename,md5
+example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
