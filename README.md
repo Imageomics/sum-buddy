@@ -91,10 +91,10 @@ The `--ignore-hidden` option is a shortcut to ignore all hidden files. It is equ
 We expose three functions to be used in your Python code:
 - `get_checksums`: Works like the CLI.
 - `gather_file_paths`: Returns a list of file paths according to ignore patterns.
-- `checksum`: Returns the checksum of a single file.
+- `checksum_file`: Returns the checksum of a single file.
 
 ```python
-from sumbuddy import get_checksums, gather_file_paths, checksum
+from sumbuddy import get_checksums, gather_file_paths, checksum_file
 
 input_dir = "./examples/example_content"
 output_file = "./examples/checksums.csv"
@@ -116,7 +116,7 @@ file_paths = gather_file_paths(input_dir, ignore_file=ignore_file)
 # or file_paths = gather_file_paths(input_dir)
 
 # To calculate the checksum of a single file
-sum = checksum("./examples/example_content/file.txt", algorithm=alg)
-# or sum = checksum("./examples/example_content/file.txt")
+sum = checksum_file("./examples/example_content/file.txt", algorithm=alg)
+# or sum = checksum_file("./examples/example_content/file.txt")
 ```
 

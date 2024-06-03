@@ -31,7 +31,7 @@ def get_checksums(input_directory, output_filepath, ignore_file=None, ignore_hid
         writer.writerow(["filepath", "filename", f"{algorithm}"])
 
         for file_path in tqdm(file_paths, desc="Calculating checksums"):
-            checksum = hasher.checksum(file_path)
+            checksum = hasher.checksum_file(file_path)
             writer.writerow([file_path, os.path.basename(file_path), checksum])
 
     print(f"Checksums written to {output_filepath}")

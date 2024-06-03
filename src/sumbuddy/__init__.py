@@ -8,6 +8,6 @@ hasher_instance = Hasher()
 
 # Expose the instance methods
 gather_file_paths = mapper_instance.gather_file_paths
-checksum = hasher_instance.checksum
+checksum_file = hasher_instance.checksum_file
 
-__all__ = ["checksum", "get_checksums", "gather_file_paths"]
+__all__ = ["checksum_file", "get_checksums", "gather_file_paths"]

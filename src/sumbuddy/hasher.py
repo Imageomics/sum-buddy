@@ -4,7 +4,7 @@ class Hasher:
     def __init__(self, algorithm='md5'):
         self.algorithm = algorithm
 
-    def checksum(self, file_path, algorithm=None):
+    def checksum_file(self, file_path, algorithm=None):
         """
         Calculate the checksum of a file using the specified algorithm.
         
