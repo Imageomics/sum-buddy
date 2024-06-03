@@ -38,43 +38,45 @@ options:
 #### CLI Examples
 You may use the `examples/` directory to test the CLI.
 
+- **Ignore All:**
 ```bash
 sum-buddy --input-dir examples/example_content --output-file examples/checksums.csv --ignore-file examples/.sbignore_all --algorithm md5
 ```
-Output
-```console
-Calculating checksums: 0it [00:00, ?it/s]
-Checksums written to examples/checksums.csv
-```
+> Output
+> ```console
+> Calculating checksums: 0it [00:00, ?it/s]
+> Checksums written to examples/checksums.csv
+> ```
 ```bash
 cat examples/checksums.csv
 ```
-Output:
-```console
-filepath,filename,md5
-```
+>  Output:
+> ```console
+> filepath,filename,md5
+> ```
 
+- **Ignore All but Dot Files:**
 ```bash
 sum-buddy --input-dir examples/example_content --output-file examples/checksums.csv --ignore-file examples/.sbignore_all_except_dots --algorithm md5
 ```
-Output:
-```console
-Calculating checksums: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:00<00:00, 2496.36it/s]
-Checksums written to examples/checksums.csv
-```
+> Output:
+> ```console
+> Calculating checksums: 100%|███████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:00<00:00, 2496.36it/s]
+> Checksums written to examples/checksums.csv
+> ```
 ```bash
 cat examples/checksums.csv
 ```
-Output:
-```console
-filepath,filename,md5
-examples/example_content/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
-examples/example_content/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
-examples/example_content/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-examples/example_content/dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
-examples/example_content/dir/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
-examples/example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-```
+> Output:
+> ```console
+> filepath,filename,md5
+> examples/example_content/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+> examples/example_content/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+> examples/example_content/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+> examples/example_content/dir/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+> examples/example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> ```
 
 The `--ignore-file` works identically to how `git` handles a `.gitignore` file using the implementation from [pathspec](https://github.com/cpburnz/python-pathspec).
 
