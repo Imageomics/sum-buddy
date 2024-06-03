@@ -19,7 +19,7 @@ class Mapper:
             self.filter_manager.read_patterns(filepath=ignore_file)
         elif ignore_hidden is True:
             self.filter_manager.read_patterns(ignore_hidden=True)
-        elif ignore_hidden is False:
+        else:
             self.filter_manager.read_patterns()  # Reset to include everything
 
     def gather_file_paths(self, input_directory, ignore_file=None, ignore_hidden=None):
