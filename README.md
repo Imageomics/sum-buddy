@@ -123,6 +123,8 @@ To ignore files based on patterns, use the `--ignore-file` (or `-i`) option with
 
 You may explore the filtering capabilities of the `--ignore-file` option by using the provided example files under `examples/` and pointing at `examples/example_content`. The expected CSV output files are provided in `examples/expected_outputs/`.
 
+The `bash` script, `examples/run_examples` will run all the examples; it was used to generate the `expected_outputs`.
+
 ### Python Package Usage
 We expose three functions to be used in your Python code:
 - `get_checksums`: Works like the CLI.
