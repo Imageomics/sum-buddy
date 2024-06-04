@@ -40,7 +40,7 @@ options:
 
 - **Basic Usage:**
 ```bash
-$ sum-buddy examples/example_content/
+sum-buddy examples/example_content/
 filepath,filename,md5
 examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
@@ -118,6 +118,8 @@ To include all files and directories, including hidden ones, use the `--include-
 To ignore files based on patterns, use the `--ignore-file` (or `-i`) option with the path to a file containing patterns to ignore. The `--ignore-file` works identically to how `git` handles a `.gitignore` file using the implementation from [pathspec](https://github.com/cpburnz/python-pathspec).
 
 You may explore the filtering capabilities of the `--ignore-file` option by using the provided example files under `examples/` and pointing at `examples/example_content`. The expected CSV output files are provided in `examples/expected_outputs/`.
+
+The `bash` script, `examples/run_examples` will run all the examples; it was used to generate the `expected_outputs`.
 
 ### Python Package Usage
 We expose three functions to be used in your Python code:
