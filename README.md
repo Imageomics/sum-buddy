@@ -134,10 +134,10 @@ We expose three functions to be used in your Python code:
 ```python
 from sumbuddy import get_checksums, gather_file_paths, checksum_file
 
-input_dir = "./examples/example_content"
-output_file = "./examples/checksums.csv"
+input_dir = "examples/example_content"
+output_file = "examples/checksums.csv"
 include_hidden = True        # Optional
-ignore_file = "./examples/.sbignore_except_txt"   # Optional
+ignore_file = "examples/.sbignore_except_txt"   # Optional
 alg = "md5"           # Optional, possible inputs include list elements returned by hashlib.algorithms_available
 
 # To generate checksums and save to a CSV file
@@ -146,7 +146,7 @@ get_checksums(input_dir, output_file, ignore_file=ignore_file, algorithm=alg)
 # or get_checksums(input_dir, output_file)
 
 # outputs status bar followed by
-# Checksums written to ./examples/checksums.csv
+# Checksums written to examples/checksums.csv
 
 # To gather a list of file paths according to ignore/include patterns
 file_paths = gather_file_paths(input_dir, ignore_file=ignore_file)
@@ -154,6 +154,6 @@ file_paths = gather_file_paths(input_dir, ignore_file=ignore_file)
 # or file_paths = gather_file_paths(input_dir)
 
 # To calculate the checksum of a single file
-sum = checksum_file("./examples/example_content/file.txt", algorithm=alg)
-# or sum = checksum_file("./examples/example_content/file.txt")
+sum = checksum_file("examples/example_content/file.txt", algorithm=alg)
+# or sum = checksum_file("examples/example_content/file.txt")
 ```
