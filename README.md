@@ -41,10 +41,14 @@ options:
 - **Basic Usage:**
 ```bash
 $ sum-buddy examples/example_content/
-filepath,filename,md5
-examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 ```
+> Output
+> ```console
+> filepath,filename,md5
+> examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> ```
+
 - **Output to File:**
 ```bash
 sum-buddy --output-file examples/checksums.csv examples/example_content/
