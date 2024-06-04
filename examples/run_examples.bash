@@ -30,13 +30,12 @@ for ignore_file in $EXAMPLES_DIR/.sbignore*; do
     echo "Wrote $output_filepath using $ignore_file"
 done
 
-# Run sum-buddy for the default case (neither --ignore-file nor --ignore-hidden is passed)
+# Run sum-buddy for the default case (neither --ignore-file nor --include-hidden is passed)
 default_output_filepath="$OUTPUT_DIR/default.csv"
 sum-buddy --output-file "$default_output_filepath" --algorithm md5 "$INPUT_DIR"
 echo "Wrote $default_output_filepath with default settings"
 
-# Run sum-buddy for the case where --ignore-hidden is True
-ignore_hidden_true_output_filepath="$OUTPUT_DIR/ignore_hidden_true.csv"
-sum-buddy --output-file "$ignore_hidden_true_output_filepath" --ignore-hidden --algorithm md5 "$INPUT_DIR"
-echo "Wrote $ignore_hidden_true_output_filepath with --ignore-hidden True"
-
+# Run sum-buddy for the case where --include-hidden is True
+include_hidden_true_output_filepath="$OUTPUT_DIR/include_hidden_true.csv"
+sum-buddy --output-file "$include_hidden_true_output_filepath" --include-hidden --algorithm md5 "$INPUT_DIR"
+echo "Wrote $include_hidden_true_output_filepath with --include-hidden True"
