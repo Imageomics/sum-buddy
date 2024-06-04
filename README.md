@@ -40,7 +40,7 @@ options:
 
 - **Basic Usage:**
 ```bash
-$ sum-buddy examples/example_content/
+sum-buddy examples/example_content/
 ```
 > Output
 > ```console
