@@ -1,0 +1,9 @@
+filepath,filename,md5
+example_content/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+example_content/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/dir/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
