@@ -5,6 +5,16 @@ import unittest
 from sumbuddy.hasher import Hasher
 
 class TestHasher(unittest.TestCase):
+    """
+    Correct answers generated with (where items in [square brackets] are optional depending on the algorithm): 
+    with open('test_file.txt', "wb") as f:
+        file.write(b'This is a test file.')
+    hash_func = hashlib.new('<algorithm>', [digest_size=<length>])
+    with open('test_file.txt', "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_func.update(chunk)
+    hash_func.hexdigest([<length>])
+    """
     checksums = {
         "md5": "3de8f8b0dc94b8c2230fab9ec0ba0506",
         "sha1": "26d82f1931cbdbd83c2a6871b2cecd5cbcc8c26b",
@@ -110,11 +120,6 @@ class TestHasher(unittest.TestCase):
         algorithms_available = hashlib.algorithms_available
         algorithms_covered = set(self.checksums.keys())
         
-        # Print the available algorithms and covered algorithms
-        print(f"algorithms_available: {algorithms_available}")
-        print(f"algorithms_covered: {algorithms_covered}")
-        
-        # Ensure exact match between available algorithms and covered algorithms
         self.assertEqual(algorithms_covered, algorithms_available, 
                         "The algorithms in checksums do not exactly match the available algorithms in hashlib")
 
