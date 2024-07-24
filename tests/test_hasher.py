@@ -18,7 +18,7 @@ class TestHasher(unittest.TestCase):
         "sha3_256": "aa49cf654dc0b2a9ee97890fb81c6d898c5c03f441baaf2f1c9adffe00d3e561",
         "sha3_384": "1c635201d12b87839b626b26c57b81216d616c984dc42d5afa17a905402267817ac787abfc24072e18e77f921eb6a23f",
         "sha3_512": "a872d9efeb2a31fe92cf116e5ca8c9b57b07b200c91adc0a26ff58f32b5c2f5bd69671809e8a85383da8e51e6f64cc74af4470832bbbe17cde35391d4fb0fbe8",
-        "shake_128": "d387bbb179a29a607bb86d119dfdab2f5961c254cedb7cbd9a8157c290d48812",  
+        "shake_128": "d387bbb179a29a607bb86d119dfdab2f5961c254cedb7cbd9a8157c290d48812",
         "shake_256": "db0b571b3252be360bf6d720f75bce209a75cdf4184db200cc9c72028b14e23a4527bf7d491e8fcf998a1bee474c2824930f8f9ab0ef4062120313f81a9e6774"
     }
 
@@ -80,12 +80,10 @@ class TestHasher(unittest.TestCase):
     def _test_checksum_file_with_algorithm(self, algorithm="md5", length=None):
         expected_checksum = self.checksums[algorithm]
         if length:
-            checksum = self.hasher.checksum_file(self.temp_file_path, algorithm=algorithm)
-            checksum = checksum[:length]
+            checksum = self.hasher.checksum_file(self.temp_file_path, algorithm=algorithm, length=length)
         else:
             checksum = self.hasher.checksum_file(self.temp_file_path, algorithm=algorithm)
         self.assertEqual(checksum, expected_checksum)
 
 if __name__ == '__main__':
     unittest.main()
-
