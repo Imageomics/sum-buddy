@@ -74,6 +74,12 @@ class TestHasher(unittest.TestCase):
     def test_checksum_file_blake2s(self):
         self._test_checksum_file_with_algorithm("blake2s")
 
+    def test_checksum_file_blake2b_len(self):
+        self._test_checksum_file_with_algorithm("blake2b", length = 64)
+
+    def test_checksum_file_blake2s_len(self):
+        self._test_checksum_file_with_algorithm("blake2s", length = 32)
+
     def test_checksum_file_sha3_224(self):
         self._test_checksum_file_with_algorithm("sha3_224")
 
