@@ -106,7 +106,14 @@ class TestHasher(unittest.TestCase):
 
     def test_checksum_file_md5_sha1(self):
         self._test_checksum_file_with_algorithm("md5-sha1")
-        
+
+    def test_invalid_length_for_fixed_length_algorithm(self):
+        with self.assertRaises(ValueError):
+            self.hasher.checksum_file(self.temp_file_path, algorithm="md5", length=10)
+
+    def test_nonexistent_file(self):
+        with self.assertRaises(FileNotFoundError):
+            self.hasher.checksum_file("non_existent_file.txt", algorithm="md5")   
 
     def _test_checksum_file_with_algorithm(self, algorithm="md5", length=None):
         expected_checksum = self.checksums[algorithm]
