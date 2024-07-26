@@ -42,11 +42,21 @@ class Mapper:
         
         file_paths = []
         root_directory = os.path.abspath(input_directory)
+        has_files = False
 
         for root, dirs, files in os.walk(input_directory):
+            if files:
+                has_files = True
             for name in files:
                 file_path = os.path.join(root, name)
                 if self.filter_manager.should_include(file_path, root_directory):
                     file_paths.append(file_path)
+        
+        if not has_files:
+            raise ValueError(f"The directory {input_directory} and subdirectories (if any) contain no files. \n"
+                             f"Please provide a directory with files.")
+        if not file_paths:
+            raise ValueError(f"The directory {input_directory} contains files, but all are filtered out. \n"
+                             f"Check patterns in your {ignore_file} file and/or hidden files settings.")
 
         return file_paths

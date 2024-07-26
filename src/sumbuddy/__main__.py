@@ -21,8 +21,11 @@ def get_checksums(input_directory, output_filepath=None, ignore_file=None, inclu
     algorithm - String. Algorithm to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
     """
     mapper = Mapper()
-    file_paths = mapper.gather_file_paths(input_directory, ignore_file=ignore_file, include_hidden=include_hidden)
-    
+    try:
+        file_paths = mapper.gather_file_paths(input_directory, ignore_file=ignore_file, include_hidden=include_hidden)
+    except ValueError as e:
+        sys.exit(str(e))
+
     # Exclude the output file from being hashed
     if output_filepath:
         output_file_abs_path = os.path.abspath(output_filepath)
@@ -69,7 +72,9 @@ def main():
         if overwrite.lower() != 'y':
             sys.exit("Exited without executing")
         
-    get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_hidden, args.algorithm)
-
+    try:
+        get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_hidden, args.algorithm)
+    except ValueError as e:
+        sys.exit(str(e))
 if __name__ == "__main__":
     main()
