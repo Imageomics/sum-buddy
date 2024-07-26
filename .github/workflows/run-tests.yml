@@ -25,5 +25,5 @@ jobs:
         shell: bash
 
       - name: run test
-        run: pytest
+        run: pytest -rs
         shell: bash
