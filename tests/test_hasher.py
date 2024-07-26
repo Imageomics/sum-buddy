@@ -2,8 +2,16 @@ import hashlib
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 from sumbuddy.hasher import Hasher
+from sumbuddy.exceptions import LengthUsedForFixedLengthHashError
 
+def is_algorithm_available(algorithm):
+    return algorithm in hashlib.algorithms_available
+
+def is_algorithm_guaranteed(algorithm):
+    return algorithm in hashlib.algorithms_guaranteed
+    
 class TestHasher(unittest.TestCase):
     """
     Correct answers generated with (where items in [square brackets] are optional depending on the algorithm): 
@@ -36,6 +44,9 @@ class TestHasher(unittest.TestCase):
         "sha512_224": "a1af41114c501d2c30c1fe259d794e672dc66ae86b0e77173ae714fd",
         "md5-sha1": "3de8f8b0dc94b8c2230fab9ec0ba050626d82f1931cbdbd83c2a6871b2cecd5cbcc8c26b"
     }
+    
+    shake_algorithms = {'shake_128', 'shake_256'}
+    blake_algorithms_with_defaults = {'blake2s': 32, 'blake2b': 64}
 
     def setUp(self):
         self.hasher = Hasher()
@@ -47,74 +58,40 @@ class TestHasher(unittest.TestCase):
     def tearDown(self):
         os.remove(self.temp_file_path)
 
+    def test_all_algorithms_with_defaults(self):
+        for algorithm in self.checksums:
+            with self.subTest(algorithm=algorithm):
+                if not is_algorithm_available(algorithm):
+                    if is_algorithm_guaranteed(algorithm):
+                        raise RuntimeError(f"{algorithm} is guaranteed but not available.")
+
+                    print(f"{algorithm} not available on system and not guaranteed. Skipping subtest.")
+                    continue
+                
+                if algorithm == "shake_128":
+                    length = 32
+                elif algorithm == "shake_256":
+                    length = 64
+                elif algorithm in self.blake_algorithms_with_defaults:
+                    length = self.blake_algorithms_with_defaults[algorithm]
+                else:
+                    length = None
+                
+                self._test_checksum_file_with_algorithm(algorithm, length)
+
+                if algorithm in self.blake_algorithms_with_defaults:
+                    length = None
+                    self._test_checksum_file_with_algorithm(algorithm, length)
+
+    @patch('hashlib.algorithms_available', new_callable=lambda: hashlib.algorithms_guaranteed)
+    def test_only_guaranteed_algorithms_available(self, mock_algorithms):
+        self.test_all_algorithms_with_defaults()
+
     def test_checksum_file(self):
         self._test_checksum_file_with_algorithm()
 
-    def test_checksum_file_md5(self):
-        self._test_checksum_file_with_algorithm("md5")
-
-    def test_checksum_file_sha1(self):
-        self._test_checksum_file_with_algorithm("sha1")
-
-    def test_checksum_file_sha224(self):
-        self._test_checksum_file_with_algorithm("sha224")
-
-    def test_checksum_file_sha256(self):
-        self._test_checksum_file_with_algorithm("sha256")
-
-    def test_checksum_file_sha384(self):
-        self._test_checksum_file_with_algorithm("sha384")
-
-    def test_checksum_file_sha512(self):
-        self._test_checksum_file_with_algorithm("sha512")
-
-    def test_checksum_file_blake2b(self):
-        self._test_checksum_file_with_algorithm("blake2b")
-
-    def test_checksum_file_blake2s(self):
-        self._test_checksum_file_with_algorithm("blake2s")
-
-    def test_checksum_file_blake2b_len(self):
-        self._test_checksum_file_with_algorithm("blake2b", length = 64)
-
-    def test_checksum_file_blake2s_len(self):
-        self._test_checksum_file_with_algorithm("blake2s", length = 32)
-
-    def test_checksum_file_sha3_224(self):
-        self._test_checksum_file_with_algorithm("sha3_224")
-
-    def test_checksum_file_sha3_256(self):
-        self._test_checksum_file_with_algorithm("sha3_256")
-
-    def test_checksum_file_sha3_384(self):
-        self._test_checksum_file_with_algorithm("sha3_384")
-
-    def test_checksum_file_sha3_512(self):
-        self._test_checksum_file_with_algorithm("sha3_512")
-
-    def test_checksum_file_shake_128(self):
-        self._test_checksum_file_with_algorithm("shake_128", length=32) 
-
-    def test_checksum_file_shake_256(self):
-        self._test_checksum_file_with_algorithm("shake_256", length=64) 
-    
-    def test_checksum_fileripemd160(self):
-        self._test_checksum_file_with_algorithm("ripemd160")
-
-    def test_checksum_file_sha512_256(self):
-        self._test_checksum_file_with_algorithm("sha512_256")
-
-    def test_checksum_file_sm3(self):
-        self._test_checksum_file_with_algorithm("sm3")
-
-    def test_checksum_file_sha512_224(self):
-        self._test_checksum_file_with_algorithm("sha512_224")
-
-    def test_checksum_file_md5_sha1(self):
-        self._test_checksum_file_with_algorithm("md5-sha1")
-
     def test_invalid_length_for_fixed_length_algorithm(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LengthUsedForFixedLengthHashError):
             self.hasher.checksum_file(self.temp_file_path, algorithm="md5", length=10)
 
     def test_nonexistent_file(self):
@@ -122,6 +99,8 @@ class TestHasher(unittest.TestCase):
             self.hasher.checksum_file("non_existent_file.txt", algorithm="md5")   
 
     def _test_checksum_file_with_algorithm(self, algorithm="md5", length=None):
+        print(f"Testing {algorithm} with length {length}")
+
         expected_checksum = self.checksums[algorithm]
         if length:
             checksum = self.hasher.checksum_file(self.temp_file_path, algorithm=algorithm, length=length)
@@ -129,12 +108,34 @@ class TestHasher(unittest.TestCase):
             checksum = self.hasher.checksum_file(self.temp_file_path, algorithm=algorithm)
         self.assertEqual(checksum, expected_checksum)
 
-    def test_algorithms_coverage(self):
+    def test_algorithms_available_coverage(self):
         algorithms_available = hashlib.algorithms_available
         algorithms_covered = set(self.checksums.keys())
         
-        self.assertEqual(algorithms_covered, algorithms_available, 
-                        "The algorithms in checksums do not exactly match the available algorithms in hashlib")
+        # Check that all available algorithms are covered
+        missing_algorithms = algorithms_available - algorithms_covered
+
+        print(f"Available algorithms to hashlib: {algorithms_available}")
+        print(f"Covered algorithms: {algorithms_covered}")
+        print(f"Avalable algs to hashlib not covered: {missing_algorithms}")
+        print(f"Covered algs not available to hashlib: {algorithms_covered - algorithms_available} (skipped in tests)")
+
+        self.assertTrue(
+            not missing_algorithms,
+            f"The following algorithms are available to hashlib but not covered in tests: {missing_algorithms}"
+        )
+
+    def test_guaranteed_algorithm_coverage(self):
+        algorithms_guaranteed = hashlib.algorithms_guaranteed
+        algorithms_covered = set(self.checksums.keys())
+
+        # Check that all guaranteed algorithms are covered
+        missing_algorithms = algorithms_guaranteed - algorithms_covered
+
+        self.assertTrue(
+            not missing_algorithms,
+            f"The following guaranteed algorithms are not covered in tests: {missing_algorithms}"
+        )
 
 if __name__ == '__main__':
     unittest.main()

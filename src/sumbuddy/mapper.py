@@ -52,7 +52,7 @@ class Mapper:
                 file_path = os.path.join(root, name)
                 if self.filter_manager.should_include(file_path, root_directory):
                     file_paths.append(file_path)
-        
+
         if not has_files:
             raise EmptyInputDirectoryError(input_directory)
         if not file_paths:
