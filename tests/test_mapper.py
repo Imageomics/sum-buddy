@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch, mock_open, MagicMock
 from sumbuddy.mapper import Mapper
 from sumbuddy.filter import Filter
-from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError
+from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, NotADirectoryError
 
 class TestMapper(unittest.TestCase):
     @patch('sumbuddy.filter.open', new_callable=mock_open, read_data="# This is a sample ignore file\n")
@@ -90,6 +90,12 @@ class TestMapper(unittest.TestCase):
 
             with self.assertRaises(NoFilesAfterFilteringError):
                 mapper.gather_file_paths(temp_dir, ignore_file=ignore_file_path)
+    
+    def test_gather_file_paths_input_not_a_directory(self):
+        mapper = Mapper()
+        with tempfile.NamedTemporaryFile() as temp_file:
+            with self.assertRaises(NotADirectoryError):
+                mapper.gather_file_paths(temp_file.name)
            
 
 if __name__ == '__main__':
