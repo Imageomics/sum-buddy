@@ -79,5 +79,7 @@ def main():
         get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_hidden, args.algorithm, args.length)
     except (LengthUsedForFixedLengthHashError) as e:
         sys.exit(str(e))
+
+
 if __name__ == "__main__":
     main()
