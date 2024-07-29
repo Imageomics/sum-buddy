@@ -17,6 +17,29 @@ class TestGetChecksums(unittest.TestCase):
         self.algorithm = 'md5'
         self.dummy_checksum = 'dummychecksum'
 
+    @patch('os.path.isfile', return_value=True)
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('sumbuddy.Hasher.checksum_file', return_value='dummychecksum')
+    def test_get_checksums_single_file_to_file(self, mock_checksum, mock_open, mock_isfile):
+        get_checksums(self.input_directory, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
+        
+        mock_open.assert_called_with(self.output_filepath, 'w', newline='')
+        handle = mock_open()
+        handle.write.assert_any_call('filepath,filename,md5\r\n')
+        handle.write.assert_any_call(f'{self.input_directory},{os.path.basename(self.input_directory)},dummychecksum\r\n')
+
+    @patch('os.path.isfile', return_value=True)
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('sumbuddy.Hasher.checksum_file', return_value='dummychecksum')
+    def test_get_checksums_single_file_to_stdout(self, mock_checksum, mock_open, mock_isfile):
+        output_stream = StringIO()
+        with patch('sys.stdout', new=output_stream):
+            get_checksums(self.input_directory, output_filepath=None, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
+            
+        output = output_stream.getvalue()
+        self.assertIn('filepath,filename,md5', output)
+        self.assertIn(f'{self.input_directory},{os.path.basename(self.input_directory)},dummychecksum', output)
+
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
