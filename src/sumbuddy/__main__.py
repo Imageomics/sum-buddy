@@ -2,13 +2,14 @@ import argparse
 from sumbuddy.hasher import Hasher
 from sumbuddy.mapper import Mapper
 from sumbuddy.filter import Filter
+from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError
 import csv
 import hashlib
 from tqdm import tqdm
 import sys
 import os
 
-def get_checksums(input_directory, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5'):
+def get_checksums(input_directory, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None):
     """
     Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore. Checksum column is labeled by the selected algorithm (e.g., 'md5' or 'sha256').
     
@@ -19,10 +20,14 @@ def get_checksums(input_directory, output_filepath=None, ignore_file=None, inclu
     ignore_file - String [optional]. Filepath for the ignore patterns file.
     include_hidden - Boolean [optional]. Whether to include hidden files. Default is False.
     algorithm - String. Algorithm to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
+    length - Integer [conditionally optional]. Length of the digest for SHAKE (required) and BLAKE (optional) algorithms in bytes.
     """
     mapper = Mapper()
-    file_paths = mapper.gather_file_paths(input_directory, ignore_file=ignore_file, include_hidden=include_hidden)
-    
+    try:
+        file_paths = mapper.gather_file_paths(input_directory, ignore_file=ignore_file, include_hidden=include_hidden)
+    except (EmptyInputDirectoryError, NoFilesAfterFilteringError) as e:
+        sys.exit(str(e))
+
     # Exclude the output file from being hashed
     if output_filepath:
         output_file_abs_path = os.path.abspath(output_filepath)
@@ -37,7 +42,7 @@ def get_checksums(input_directory, output_filepath=None, ignore_file=None, inclu
 
         disable_tqdm = output_filepath is None
         for file_path in tqdm(file_paths, desc=f"Calculating {algorithm} checksums on {input_directory}", disable=disable_tqdm):
-            checksum = hasher.checksum_file(file_path)
+            checksum = hasher.checksum_file(file_path, algorithm=algorithm, length=length)
             writer.writerow([file_path, os.path.basename(file_path), checksum])
 
     finally:
@@ -58,6 +63,7 @@ def main():
     group.add_argument("-i", "--ignore-file", help="Filepath for the ignore patterns file")
     group.add_argument("-H", "--include-hidden", action="store_true", help="Include hidden files")
     parser.add_argument("-a", "--algorithm", default="md5", help=f"Hash algorithm to use (default: md5; available: {available_algorithms})")
+    parser.add_argument("-l", "--length", type=int, help="Length of the digest for SHAKE (required) or BLAKE (optional) algorithms in bytes")
 
     args = parser.parse_args()
 
@@ -69,7 +75,11 @@ def main():
         if overwrite.lower() != 'y':
             sys.exit("Exited without executing")
         
-    get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_hidden, args.algorithm)
+    try:
+        get_checksums(args.input_dir, args.output_file, args.ignore_file, args.include_hidden, args.algorithm, args.length)
+    except (LengthUsedForFixedLengthHashError) as e:
+        sys.exit(str(e))
+
 
 if __name__ == "__main__":
     main()
