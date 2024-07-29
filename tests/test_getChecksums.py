@@ -21,7 +21,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
     @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
-    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x: 'dummychecksum')
+    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_to_file(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_directory, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
         
@@ -35,7 +35,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
     @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
-    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x: 'dummychecksum')
+    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_to_stdout(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         output_stream = StringIO()
         with patch('sys.stdout', new=output_stream):
@@ -50,7 +50,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
     @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
-    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x: 'dummychecksum')
+    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_with_ignore_file(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_directory, output_filepath=None, ignore_file=self.ignore_file, include_hidden=False, algorithm=self.algorithm)
         mock_gather.assert_called_with(self.input_directory, ignore_file=self.ignore_file, include_hidden=False)
@@ -59,7 +59,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
     @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt', '.hidden_file'])
-    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x: 'dummychecksum')
+    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_include_hidden(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_directory, output_filepath=None, ignore_file=None, include_hidden=True, algorithm=self.algorithm)
         mock_gather.assert_called_with(self.input_directory, ignore_file=None, include_hidden=True)
@@ -68,7 +68,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
     @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
-    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x: 'dummychecksum')
+    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_different_algorithm(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         algorithm = 'sha256'
         get_checksums(self.input_directory, output_filepath=None, ignore_file=None, include_hidden=False, algorithm=algorithm)

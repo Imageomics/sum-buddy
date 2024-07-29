@@ -1,4 +1,5 @@
 import hashlib
+from sumbuddy.exceptions import LengthUsedForFixedLengthHashError
 
 class Hasher:
     def __init__(self, algorithm='md5'):
@@ -51,7 +52,7 @@ class Hasher:
         # Other algorithms
         else:
             if length is not None:
-                raise ValueError(f"Length parameter is not applicable for fixed-length algorithm '{algorithm}'")
+                raise LengthUsedForFixedLengthHashError(algorithm)
             hash_func = hashlib.new(algorithm)
 
         # Read the file and update the hash function

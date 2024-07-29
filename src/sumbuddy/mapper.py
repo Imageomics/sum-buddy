@@ -1,5 +1,6 @@
 import os
 from sumbuddy.filter import Filter
+from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError
 
 class Mapper:
     def __init__(self):
@@ -42,11 +43,19 @@ class Mapper:
         
         file_paths = []
         root_directory = os.path.abspath(input_directory)
+        has_files = False
 
         for root, dirs, files in os.walk(input_directory):
+            if files:
+                has_files = True
             for name in files:
                 file_path = os.path.join(root, name)
                 if self.filter_manager.should_include(file_path, root_directory):
                     file_paths.append(file_path)
+
+        if not has_files:
+            raise EmptyInputDirectoryError(input_directory)
+        if not file_paths:
+            raise NoFilesAfterFilteringError(input_directory, ignore_file)
 
         return file_paths

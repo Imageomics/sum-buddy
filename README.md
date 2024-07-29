@@ -36,6 +36,8 @@ options:
                         Hash algorithm to use (default: md5; available: ripemd160, sha3_224, sha512_224, blake2b, sha384, sha256, sm3, sha3_256, shake_256, sha512, sha1, sha224, md5, md5-sha1, sha3_384, sha3_512, sha512_256, shake_128, blake2s)
 ```
 
+> Note: The available algorithms are determined by those available to `hashlib` and may vary depending on your system and OpenSSL version, so the set shown on your system with `sum-buddy -h` may be different from above. At a minimum, it should include: `{blake2s, blake2b, md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, shake_128, shake_256}`, which is given by `hashlib.algorithms_guaranteed`.
+
 #### CLI Examples
 
 - **Basic Usage:**

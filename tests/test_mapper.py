@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch, mock_open, MagicMock
 from sumbuddy.mapper import Mapper
 from sumbuddy.filter import Filter
+from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError
 
 class TestMapper(unittest.TestCase):
     @patch('sumbuddy.filter.open', new_callable=mock_open, read_data="# This is a sample ignore file\n")
@@ -66,6 +67,29 @@ class TestMapper(unittest.TestCase):
             self.assertIn(os.path.join(temp_dir, 'file2.txt'), file_paths)
             self.assertIn(os.path.join(temp_dir, 'ignore_file'), file_paths)
             self.assertIn(os.path.join(subdir_path, 'file3.txt'), file_paths)
+
+    def test_gather_file_paths_empty(self):
+        mapper = Mapper()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with self.assertRaises(EmptyInputDirectoryError):
+                mapper.gather_file_paths(temp_dir)
+    
+    def test_gather_file_paths_filtered_files(self):
+        mapper = Mapper()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with open(os.path.join(temp_dir, 'file1.dat'), 'w') as file:
+                file.write('Some content')
+            with open(os.path.join(temp_dir, 'file2.dat'), 'w') as file:
+                file.write('Some content')
+            with open(os.path.join(temp_dir, '.hidden.txt'), 'w') as file:
+                file.write('Some content')
+
+            ignore_file_path = os.path.join(temp_dir, '.ignore_file')
+            with open(ignore_file_path, 'w') as ignore_file:
+                ignore_file.write("*.dat\n.*")
+
+            with self.assertRaises(NoFilesAfterFilteringError):
+                mapper.gather_file_paths(temp_dir, ignore_file=ignore_file_path)
            
 
 if __name__ == '__main__':
