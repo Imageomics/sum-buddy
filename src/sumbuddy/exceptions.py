@@ -1,5 +1,5 @@
 class EmptyInputDirectoryError(Exception):
-    def __init__(selfe, input_directory):
+    def __init__(self, input_directory):
         message = f"The directory {input_directory} and subdirectories (if any) contain no files. \nPlease provide a directory with files."
         super().__init__(message)
 
