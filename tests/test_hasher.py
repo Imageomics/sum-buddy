@@ -77,6 +77,10 @@ def test_all_algorithms_with_defaults(temp_file, algorithm):
 @patch('hashlib.algorithms_available', new_callable=lambda: hashlib.algorithms_guaranteed)
 @pytest.mark.parametrize("algorithm", checksums.keys())
 def test_only_guaranteed_algorithms_available(mock_algorithms, temp_file, algorithm):
+    '''
+    Run algorithm tests as if those that are not guaranteed are unavailable in the system.
+    Skips are expected, but each algorithm should only be skipped once unless it is actually unavailable on the system running the testing.
+    '''
     test_all_algorithms_with_defaults(temp_file, algorithm)
 
 def test_invalid_length_for_fixed_length_algorithm(temp_file):
