@@ -63,8 +63,8 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
 def main():
 
     available_algorithms = ', '.join(hashlib.algorithms_available)
-        
-    parser = argparse.ArgumentParser(description="Generate CSV with filepath, filename, and checksums for all files in a given directory")
+    
+    parser = argparse.ArgumentParser(description="Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)")
     parser.add_argument("input_path", help="File or directory to traverse for files")
     parser.add_argument("-o", "--output-file", help="Filepath for the output CSV file; defaults to stdout", default=None)
     group = parser.add_mutually_exclusive_group()
