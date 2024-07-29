@@ -26,6 +26,10 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
 
     if os.path.isfile(input_path):
         file_paths = [input_path]
+        if ignore_file:
+            print("Warning: --ignore-file (-i) flag is ignored when input is a single file.")
+        if include_hidden:
+            print("Warning: --include-hidden (-H) flag is ignored when input is a single file.")
     else:
         try:
             file_paths = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
