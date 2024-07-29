@@ -23,10 +23,14 @@ def get_checksums(input_directory, output_filepath=None, ignore_file=None, inclu
     length - Integer [conditionally optional]. Length of the digest for SHAKE (required) and BLAKE (optional) algorithms in bytes.
     """
     mapper = Mapper()
-    try:
-        file_paths = mapper.gather_file_paths(input_directory, ignore_file=ignore_file, include_hidden=include_hidden)
-    except (EmptyInputDirectoryError, NoFilesAfterFilteringError) as e:
-        sys.exit(str(e))
+
+    if os.path.isfile(input_directory):
+        file_paths = [input_directory]
+    else:
+        try:
+            file_paths = mapper.gather_file_paths(input_directory, ignore_file=ignore_file, include_hidden=include_hidden)
+        except (EmptyInputDirectoryError, NoFilesAfterFilteringError) as e:
+            sys.exit(str(e))
 
     # Exclude the output file from being hashed
     if output_filepath:
