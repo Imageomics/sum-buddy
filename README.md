@@ -22,7 +22,7 @@ usage: sum-buddy [-h] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] inpu
 Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)
 
 positional arguments:
-  input_path             Directory to traverse for files
+  input_path             File or directory to traverse for files
 
 options:
   -h, --help            show this help message and exit
