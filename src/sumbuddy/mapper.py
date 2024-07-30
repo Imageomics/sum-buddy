@@ -1,6 +1,6 @@
 import os
 from sumbuddy.filter import Filter
-from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError
+from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, NotADirectoryError
 
 class Mapper:
     def __init__(self):
@@ -39,6 +39,10 @@ class Mapper:
         ---------
         file_paths - List. Files in input_directory that are not ignored.
         """
+
+        if not os.path.isdir(input_directory):
+            raise NotADirectoryError(input_directory)
+        
         self.reset_filter(ignore_file=ignore_file, include_hidden=include_hidden)
         
         file_paths = []

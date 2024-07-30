@@ -1,6 +1,5 @@
 # sum-buddy
-Command-line package to generate a CSV with filepath, filename, and checksum for contents of given directory.
-
+Command-line package to generate a CSV with filepath, filename, and checksum for contents of a given directory or a single file.
 
 ## Requirements
 Python 3.7+
@@ -18,12 +17,12 @@ pip install git+https://github.com/Imageomics/sum-buddy
 ### Command Line Usage
 
 ```
-usage: sum-buddy [-h] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] input_dir
+usage: sum-buddy [-h] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] input_path
 
-Generate CSV with filepath, filename, and checksums for all files in a given directory
+Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)
 
 positional arguments:
-  input_dir             Directory to traverse for files
+  input_path             File or directory to traverse for files
 
 options:
   -h, --help            show this help message and exit
@@ -34,6 +33,8 @@ options:
   -H, --include-hidden  Include hidden files
   -a ALGORITHM, --algorithm ALGORITHM
                         Hash algorithm to use (default: md5; available: ripemd160, sha3_224, sha512_224, blake2b, sha384, sha256, sm3, sha3_256, shake_256, sha512, sha1, sha224, md5, md5-sha1, sha3_384, sha3_512, sha512_256, shake_128, blake2s)
+  -l LENGTH, --length LENGTH
+                        Length of the digest for SHAKE (required) or BLAKE (optional) algorithms in bytes
 ```
 
 > Note: The available algorithms are determined by those available to `hashlib` and may vary depending on your system and OpenSSL version, so the set shown on your system with `sum-buddy -h` may be different from above. At a minimum, it should include: `{blake2s, blake2b, md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, shake_128, shake_256}`, which is given by `hashlib.algorithms_guaranteed`.
@@ -136,24 +137,24 @@ We expose three functions to be used in your Python code:
 ```python
 from sumbuddy import get_checksums, gather_file_paths, checksum_file
 
-input_dir = "examples/example_content"
+input_path = "examples/example_content"
 output_file = "examples/checksums.csv"
 include_hidden = True        # Optional
 ignore_file = "examples/.sbignore_except_txt"   # Optional
 alg = "md5"           # Optional, possible inputs include list elements returned by hashlib.algorithms_available
 
 # To generate checksums and save to a CSV file
-get_checksums(input_dir, output_file, ignore_file=ignore_file, algorithm=alg)
-# or get_checksums(input_dir, output_file, ignore_hidden=ignore_hidden)
-# or get_checksums(input_dir, output_file)
+get_checksums(input_path, output_file, ignore_file=ignore_file, algorithm=alg)
+# or get_checksums(input_path, output_file, ignore_hidden=ignore_hidden)
+# or get_checksums(input_path, output_file)
 
 # outputs status bar followed by
 # Checksums written to examples/checksums.csv
 
 # To gather a list of file paths according to ignore/include patterns
-file_paths = gather_file_paths(input_dir, ignore_file=ignore_file)
-# or file_paths = gather_file_paths(input_dir, include_hidden=include_hidden)
-# or file_paths = gather_file_paths(input_dir)
+file_paths = gather_file_paths(input_path, ignore_file=ignore_file)
+# or file_paths = gather_file_paths(input_path, include_hidden=include_hidden)
+# or file_paths = gather_file_paths(input_path)
 
 # To calculate the checksum of a single file
 sum = checksum_file("examples/example_content/file.txt", algorithm=alg)
