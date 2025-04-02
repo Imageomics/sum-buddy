@@ -14,7 +14,7 @@ authors = [
 ]
 description = "A command-line package to generate CSV with filepath, filename, checksum for all contents of given directory."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
