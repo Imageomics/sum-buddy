@@ -1,7 +1,7 @@
 
 import unittest
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from sumbuddy.filter import Filter
 from sumbuddy.hasher import Hasher
 

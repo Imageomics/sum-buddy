@@ -1,8 +1,6 @@
 import unittest
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, mock_open
 import os
-import sys
-import hashlib
 from io import StringIO
 
 from sumbuddy import get_checksums
