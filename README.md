@@ -2,7 +2,7 @@
 Command-line package to generate a CSV with filepath, filename, and checksum for contents of a given directory or a single file.
 
 ## Requirements
-Python 3.7+
+Python 3.10+
 
 
 ## Installation
