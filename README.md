@@ -167,7 +167,7 @@ To develop the package further:
 1. Clone the repository and create a branch
 2. Install with dev dependencies:
 ```bash
-pip install -e .[dev]
+pip install -e ".[dev]"
 ```
 3. Install pre-commit hook
 ```bash
