@@ -160,3 +160,21 @@ file_paths = gather_file_paths(input_path, ignore_file=ignore_file)
 sum = checksum_file("examples/example_content/file.txt", algorithm=alg)
 # or sum = checksum_file("examples/example_content/file.txt")
 ```
+
+## Development
+To develop the package further:
+
+1. Clone the repository and create a branch
+2. Install with dev dependencies:
+```bash
+pip install -e ".[dev]"
+```
+3. Install pre-commit hook
+```bash
+pre-commit install
+pre-commit autoupdate # optionally update
+```
+4. Run tests:
+```bash
+pytest
+```

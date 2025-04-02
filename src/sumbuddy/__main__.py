@@ -1,7 +1,6 @@
 import argparse
 from sumbuddy.hasher import Hasher
 from sumbuddy.mapper import Mapper
-from sumbuddy.filter import Filter
 from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError
 import csv
 import hashlib
