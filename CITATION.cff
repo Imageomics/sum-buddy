@@ -20,7 +20,7 @@ identifiers:
     value: "https://github.com/Imageomics/sum-buddy/releases/tag/v1.0.0"
   - description: "The GitHub URL of the commit tagged with v1.0.0."
     type: url
-    value: "https://github.com/Imageomics/sum-buddy/tree/<commit hash>"  #update on release
+    value: "https://github.com/Imageomics/sum-buddy/tree/5dfc39dcd05cc17b9ccb67fc7f3364ce30d082e7"
 keywords:
   - imageomics
   - metadata
@@ -35,5 +35,5 @@ message: "If you use this software, please cite it using the metadata from this 
 repository-code: "https://github.com/Imageomics/sum-buddy"
 title: "Sum Buddy"
 version: "1.0.0"
-# doi: <DOI from Zenodo>
+doi: "10.5281/zenodo.15133037"
 type: software
