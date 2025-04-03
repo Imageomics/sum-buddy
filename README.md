@@ -1,4 +1,4 @@
-# sum-buddy  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15133038.svg)](https://doi.org/10.5281/zenodo.15133038)
+# sum-buddy  [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15133037.svg)](https://doi.org/10.5281/zenodo.15133037)
 Command-line package to generate a CSV with filepath, filename, and checksum for contents of a given directory or a single file.
 
 ## Requirements
