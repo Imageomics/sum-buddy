@@ -36,6 +36,12 @@ keywords = [
   "checksum",
   "md5",
   "deduplication",
+  "imageomics",
+  "metadata",
+  "CSV",
+  "images",
+  "verifier",
+  "file-verification",
 ]
 
 [project.urls]
