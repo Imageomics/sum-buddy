@@ -9,8 +9,8 @@ packages = ["src/sumbuddy"]
 name = "sum-buddy"
 dynamic = ["version"]
 authors = [
-  { name="Elizabeth G. Campolongo", email="e.campolongo479@gmail.com" },
   { name="Matthew J. Thompson", email="thompson.m.j@outlook.com" },
+  { name="Elizabeth G. Campolongo", email="e.campolongo479@gmail.com" },
 ]
 description = "A command-line package to generate CSV with filepath, filename, checksum for all contents of given directory."
 readme = "README.md"
@@ -36,6 +36,12 @@ keywords = [
   "checksum",
   "md5",
   "deduplication",
+  "imageomics",
+  "metadata",
+  "CSV",
+  "images",
+  "verifier",
+  "file-verification",
 ]
 
 [project.urls]
