@@ -13,14 +13,14 @@ authors:
   given-names: "Hilmar"
   orcid: "https://orcid.org/0000-0001-9107-0714"
 cff-version: 1.2.0
-date-released: "2024-07-30"
+date-released: "2025-04-03"
 identifiers:
-  - description: "The GitHub release URL of tag v0.2.0-alpha."
+  - description: "The GitHub release URL of tag v1.0.0."
     type: url
-    value: "https://github.com/Imageomics/sum-buddy/releases/tag/v0.2.0-alpha"
-  - description: "The GitHub URL of the commit tagged with v0.2.0-alpha."
+    value: "https://github.com/Imageomics/sum-buddy/releases/tag/v1.0.0"
+  - description: "The GitHub URL of the commit tagged with v1.0.0."
     type: url
-    value: "https://github.com/Imageomics/sum-buddy/tree/2a29e34ecf98d25c6ca4d5665e2b0929fe9cfb48"
+    value: "https://github.com/Imageomics/sum-buddy/tree/<commit hash>"  #update on release
 keywords:
   - imageomics
   - metadata
@@ -34,6 +34,6 @@ license: MIT
 message: "If you use this software, please cite it using the metadata from this file."
 repository-code: "https://github.com/Imageomics/sum-buddy"
 title: "Sum Buddy"
-version: "0.2.0-alpha"
+version: "1.0.0"
 # doi: <DOI from Zenodo>
 type: software
