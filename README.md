@@ -8,7 +8,7 @@ Python 3.10+
 ## Installation
 
 ```bash
-pip install git+https://github.com/Imageomics/sum-buddy
+pip install sum-buddy
 ```
 
 
