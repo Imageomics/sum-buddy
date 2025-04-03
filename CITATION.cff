@@ -1,0 +1,39 @@
+abstract: "A command-line package to generate CSV with filepath, filename, checksum for all contents of given directory."
+authors:
+- family-names: "Thompson"
+  given-names: "Matthew J."
+  orcid: "https://orcid.org/0000-0003-0583-8585"
+- family-names: "Campolongo"
+  given-names: "Elizabeth G."
+  orcid: "https://orcid.org/0000-0003-0846-2413"
+- family-names: "Zoe"
+  given-names: "Duan"
+  orcid: "https://orcid.org/0000-0002-8547-5907"
+- family-names: "Lapp"
+  given-names: "Hilmar"
+  orcid: "https://orcid.org/0000-0001-9107-0714"
+cff-version: 1.2.0
+date-released: "2025-04-03"
+identifiers:
+  - description: "The GitHub release URL of tag v1.0.0."
+    type: url
+    value: "https://github.com/Imageomics/sum-buddy/releases/tag/v1.0.0"
+  - description: "The GitHub URL of the commit tagged with v1.0.0."
+    type: url
+    value: "https://github.com/Imageomics/sum-buddy/tree/<commit hash>"  #update on release
+keywords:
+  - imageomics
+  - metadata
+  - CSV
+  - images
+  - verifier
+  - checksums
+  - file-verification
+  - deduplication
+license: MIT
+message: "If you use this software, please cite it using the metadata from this file."
+repository-code: "https://github.com/Imageomics/sum-buddy"
+title: "Sum Buddy"
+version: "1.0.0"
+# doi: <DOI from Zenodo>
+type: software

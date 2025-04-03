@@ -1,0 +1,42 @@
+{
+  "creators": [
+    {
+      "name": "Thompson, Matthew J.",
+      "orcid": "0000-0003-0583-8585"
+    },
+    {
+      "name": "Campolongo, Elizabeth G.",
+      "orcid": "0000-0003-0846-2413"
+    },
+    {
+      "name": "Duan, Zoe",
+      "orcid": "0000-0002-8547-5907"
+    },
+    {
+      "name": "Lapp, Hilmar",
+      "orcid": "0000-0001-9107-0714"
+    }
+  ],
+  "description": "A command-line package to generate CSV with filepath, filename, checksum for all contents of given directory.",
+  "keywords": [
+    "imageomics",
+    "metadata",
+    "CSV",
+    "images",
+    "verifier",
+    "checksums",
+    "file-verification",
+    "deduplication"
+  ],
+  "license": {
+    "id": "MIT"
+  },
+  "publication_date": "2025-04-03",
+  "title": "Sum Buddy",
+  "version": "1.0.0",
+  "grants": [
+      {
+          "id": "021nxhr62::2118240"
+        }
+    ]
+}
