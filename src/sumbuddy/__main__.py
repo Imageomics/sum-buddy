@@ -7,6 +7,7 @@ import hashlib
 from tqdm import tqdm
 import sys
 import os
+import zipfile
 
 def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None):
     """
@@ -49,8 +50,23 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
 
         disable_tqdm = output_filepath is None
         for file_path in tqdm(file_paths, desc=f"Calculating {algorithm} checksums on {input_path}", disable=disable_tqdm):
-            checksum = hasher.checksum_file(file_path, algorithm=algorithm, length=length)
-            writer.writerow([file_path, os.path.basename(file_path), checksum])
+            # For files inside zip files (indicated by path containing .zip/)
+            if '.zip/' in file_path:
+                zip_index = file_path.find('.zip/')
+                zip_path = file_path[:zip_index + 4]  # include '.zip'
+                file_in_zip = file_path[zip_index + 5:]
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    # Only try to open if the file exists in the zip
+                    if file_in_zip in zip_ref.namelist():
+                        with zip_ref.open(file_in_zip) as file_in_zip_ref:
+                            checksum = hasher.checksum_file(file_in_zip_ref, algorithm=algorithm, length=length)
+                        writer.writerow([file_path, os.path.basename(file_path), checksum])
+                    else:
+                        print(f"Warning: {file_in_zip} not found in {zip_path}, skipping.")
+            else:
+                # For regular files and zip files themselves
+                checksum = hasher.checksum_file(file_path, algorithm=algorithm, length=length)
+                writer.writerow([file_path, os.path.basename(file_path), checksum])
 
     finally:
         if output_filepath:
@@ -60,7 +76,6 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
         print(f"{algorithm} checksums for {input_path} written to {output_filepath}")
 
 def main():
-
     available_algorithms = ', '.join(hashlib.algorithms_available)
     
     parser = argparse.ArgumentParser(description="Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)")

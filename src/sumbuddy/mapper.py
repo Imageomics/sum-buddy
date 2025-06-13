@@ -1,10 +1,13 @@
 import os
+import zipfile
 from sumbuddy.filter import Filter
 from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, NotADirectoryError
+from sumbuddy.archive import ArchiveHandler
 
 class Mapper:
     def __init__(self):
         self.filter_manager = Filter()
+        self.archive_handler = ArchiveHandler()
 
     def reset_filter(self, ignore_file=None, include_hidden=False):
         """
@@ -56,6 +59,15 @@ class Mapper:
                 file_path = os.path.join(root, name)
                 if self.filter_manager.should_include(file_path, root_directory):
                     file_paths.append(file_path)
+                    # If it's a zip file, process its contents
+                    if zipfile.is_zipfile(file_path):
+                        try:
+                            zip_contents = self.archive_handler.process_zip(file_path, root_directory)
+                            for _, zip_path in zip_contents:
+                                if self.filter_manager.should_include(zip_path, root_directory):
+                                    file_paths.append(zip_path)
+                        finally:
+                            self.archive_handler.cleanup()
 
         if not has_files:
             raise EmptyInputDirectoryError(input_directory)

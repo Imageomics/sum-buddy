@@ -117,6 +117,32 @@ cat examples/checksums.csv
 > examples/example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 >```
 
+- **Zip Support:**
+  sum-buddy now supports processing zip files. When a zip file is encountered, it will:
+  - Calculate the checksum of the zip file itself.
+  - List each file inside the zip as `zipfile.zip/filename` with its own checksum.
+
+  Example:
+  ```bash
+  sum-buddy --output-file examples/checksums_zip.csv examples/example_content/
+  ```
+  > Output
+  > ```console
+  > Calculating md5 checksums on examples/example_content/: 100%|████████████████████████████████████████████████████████████████████████████| 5/5 [00:00<00:00, 15109.16it/s]
+  > md5 checksums for examples/example_content/ written to examples/checksums_zip.csv
+  > ```
+  ```bash
+  cat examples/checksums_zip.csv
+  ```
+  > Output:
+  > ```console
+  > filepath,filename,md5
+  > examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+  > examples/example_content/testzip.zip,testzip.zip,dcf68ba27f40590ff899b63d44e18836
+  > examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+  > examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+  > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+  > ```
 
 If only a target directory is passed, the default settings are to ignore hidden files and directories (those that begin with a `.`), use the `md5` algorithm, and print output to `stdout`, which can be piped (`|`).
 
