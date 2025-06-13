@@ -2,7 +2,6 @@ import os
 import zipfile
 import tempfile
 import shutil
-from pathlib import Path
 
 class ArchiveHandler:
     def __init__(self):
