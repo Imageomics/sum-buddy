@@ -67,8 +67,10 @@ class Mapper:
                                 if self.filter_manager.should_include(zip_path, root_directory):
                                     file_paths.append(zip_path)
                         finally:
-                            self.archive_handler.cleanup()
+                            pass
 
+        # Perform cleanup after processing all zip files
+        self.archive_handler.cleanup()
         if not has_files:
             raise EmptyInputDirectoryError(input_directory)
         if not file_paths:
