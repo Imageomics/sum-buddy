@@ -198,9 +198,13 @@ pip install -e ".[dev]"
 3. Install pre-commit hook
 ```bash
 pre-commit install
-pre-commit autoupdate # optionally update
 ```
-4. Run tests:
+
+### Tests
+
+A dedicated test file, `tests/test_archive.py`, has been added to verify zip file support. This test ensures that both zip files and their contents are correctly processed and checksummed. The test uses a sample archive (`tests/test_archive.zip`) included in the repository.
+
+Run all tests with:
 ```bash
-pytest
+python -m pytest -v
 ```
