@@ -1,9 +1,6 @@
-import pytest
 import tempfile
-import os
 import zipfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 from sumbuddy.archive import ArchiveHandler
 from sumbuddy.mapper import Mapper
