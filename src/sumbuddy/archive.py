@@ -36,7 +36,7 @@ class ArchiveHandler:
                 for member in zip_ref.namelist():
                     # Only add files, not directories
                     if member.endswith('/'):
-                        continue
+                        continued
                     full_path = os.path.join(self.temp_dir, member)
                     # The path as it should appear in the CSV: zip_path/member
                     rel_path = f"{zip_path}/{member}"
@@ -50,4 +50,16 @@ class ArchiveHandler:
         """Clean up temporary directory if it exists."""
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
-            self.temp_dir = None 
+            self.temp_dir = None
+
+    @staticmethod
+    def stream_zip(zip_path):
+        """
+        Yield (name, file-like object) for each file in the ZIP archive.
+        Only yields regular files (not directories).
+        """
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for member in zip_ref.namelist():
+                if member.endswith('/'):
+                    continue  # skip directories
+                yield member, zip_ref.open(member) 

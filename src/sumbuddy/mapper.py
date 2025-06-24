@@ -31,16 +31,7 @@ class Mapper:
     def gather_file_paths(self, input_directory, ignore_file=None, include_hidden=False):
         """
         Generate list of file paths in the input directory based on ignore pattern rules.
-        
-        Parameters:
-        ------------
-        input_directory - String. Directory to traverse for files.
-        ignore_file - String [optional]. Filepath for the ignore patterns file.
-        include_hidden - Boolean [optional]. Whether to include hidden files.
-        
-        Returns:
-        ---------
-        file_paths - List. Files in input_directory that are not ignored.
+        Returns a tuple: (regular_files, zip_archives)
         """
 
         if not os.path.isdir(input_directory):
@@ -48,7 +39,8 @@ class Mapper:
         
         self.reset_filter(ignore_file=ignore_file, include_hidden=include_hidden)
         
-        file_paths = []
+        regular_files = []
+        zip_archives = []
         root_directory = os.path.abspath(input_directory)
         has_files = False
 
@@ -58,22 +50,14 @@ class Mapper:
             for name in files:
                 file_path = os.path.join(root, name)
                 if self.filter_manager.should_include(file_path, root_directory):
-                    file_paths.append(file_path)
-                    # If it's a zip file, process its contents
                     if zipfile.is_zipfile(file_path):
-                        try:
-                            zip_contents = self.archive_handler.process_zip(file_path, root_directory)
-                            for _, zip_path in zip_contents:
-                                if self.filter_manager.should_include(zip_path, root_directory):
-                                    file_paths.append(zip_path)
-                        finally:
-                            pass
+                        zip_archives.append(file_path)
+                    else:
+                        regular_files.append(file_path)
 
-        # Perform cleanup after processing all zip files
-        self.archive_handler.cleanup()
         if not has_files:
             raise EmptyInputDirectoryError(input_directory)
-        if not file_paths:
+        if not (regular_files or zip_archives):
             raise NoFilesAfterFilteringError(input_directory, ignore_file)
 
-        return file_paths
+        return regular_files, zip_archives

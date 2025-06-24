@@ -8,6 +8,7 @@ from tqdm import tqdm
 import sys
 import os
 import zipfile
+from sumbuddy.archive import ArchiveHandler
 
 def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None):
     """
@@ -25,21 +26,23 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
     mapper = Mapper()
 
     if os.path.isfile(input_path):
-        file_paths = [input_path]
+        regular_files = [input_path]
+        zip_archives = []
         if ignore_file:
             print("Warning: --ignore-file (-i) flag is ignored when input is a single file.")
         if include_hidden:
             print("Warning: --include-hidden (-H) flag is ignored when input is a single file.")
     else:
         try:
-            file_paths = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
+            regular_files, zip_archives = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
         except (EmptyInputDirectoryError, NoFilesAfterFilteringError) as e:
             sys.exit(str(e))
 
     # Exclude the output file from being hashed
     if output_filepath:
         output_file_abs_path = os.path.abspath(output_filepath)
-        file_paths = [path for path in file_paths if os.path.abspath(path) != output_file_abs_path]
+        regular_files = [path for path in regular_files if os.path.abspath(path) != output_file_abs_path]
+        zip_archives = [path for path in zip_archives if os.path.abspath(path) != output_file_abs_path]
 
     hasher = Hasher(algorithm)
     output_stream = open(output_filepath, 'w', newline='') if output_filepath else sys.stdout
@@ -49,25 +52,25 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
         writer.writerow(["filepath", "filename", f"{algorithm}"])
 
         disable_tqdm = output_filepath is None
-        for file_path in tqdm(file_paths, desc=f"Calculating {algorithm} checksums on {input_path}", disable=disable_tqdm):
-            # For files inside zip files (indicated by path containing .zip/)
-            if '.zip/' in file_path:
-                zip_index = file_path.find('.zip/')
-                zip_path = file_path[:zip_index + 4]  # include '.zip'
-                file_in_zip = file_path[zip_index + 5:]
-                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                    # Only try to open if the file exists in the zip
-                    if file_in_zip in zip_ref.namelist():
-                        with zip_ref.open(file_in_zip) as file_in_zip_ref:
-                            checksum = hasher.checksum_file(file_in_zip_ref, algorithm=algorithm, length=length)
-                        writer.writerow([file_path, os.path.basename(file_path), checksum])
-                    else:
-                        print(f"Warning: {file_in_zip} not found in {zip_path}, skipping.")
-            else:
-                # For regular files and zip files themselves
+        total_files = len(regular_files) + sum(1 for z in zip_archives for _ in ArchiveHandler.stream_zip(z)) + len(zip_archives)
+        with tqdm(total=total_files, desc=f"Calculating {algorithm} checksums on {input_path}", disable=disable_tqdm) as pbar:
+            # Process regular files
+            for file_path in regular_files:
                 checksum = hasher.checksum_file(file_path, algorithm=algorithm, length=length)
                 writer.writerow([file_path, os.path.basename(file_path), checksum])
-
+                pbar.update(1)
+            # Process zip archives
+            for zip_path in zip_archives:
+                # Write checksum for the zip file itself
+                checksum = hasher.checksum_file(zip_path, algorithm=algorithm, length=length)
+                writer.writerow([zip_path, os.path.basename(zip_path), checksum])
+                pbar.update(1)
+                # Write checksums for each file inside the zip
+                for member, file_obj in ArchiveHandler.stream_zip(zip_path):
+                    virtual_path = f"{zip_path}/{member}"
+                    checksum = hasher.checksum_file(file_obj, algorithm=algorithm, length=length)
+                    writer.writerow([virtual_path, os.path.basename(member), checksum])
+                    pbar.update(1)
     finally:
         if output_filepath:
             output_stream.close()

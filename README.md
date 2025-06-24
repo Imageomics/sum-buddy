@@ -117,10 +117,10 @@ cat examples/checksums.csv
 > examples/example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 >```
 
-- **Zip Support:**
-  sum-buddy now supports processing zip files. When a zip file is encountered, it will:
-  - Calculate the checksum of the zip file itself.
-  - List each file inside the zip as `zipfile.zip/filename` with its own checksum.
+- **ZIP Support:**
+  sum-buddy supports processing ZIP files. When a ZIP file is encountered, it will:
+  - Calculate the checksum of the ZIP file itself.
+  - List each file inside the ZIP as `zipfile.zip/filename` with its own checksum, using in-memory streaming (no extraction to disk).
 
   Example:
   ```bash
@@ -202,9 +202,7 @@ pre-commit install
 
 ### Tests
 
-A dedicated test file, `tests/test_archive.py`, has been added to verify zip file support. This test ensures that both zip files and their contents are correctly processed and checksummed. The test uses a sample archive (`tests/test_archive.zip`) included in the repository.
-
-Run all tests with:
+To run all tests:
 ```bash
-python -m pytest -v
+python -m pytest
 ```

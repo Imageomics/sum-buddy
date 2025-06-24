@@ -41,7 +41,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt'], []))
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_to_file(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_path, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
@@ -55,7 +55,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt'], []))
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_to_stdout(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         output_stream = StringIO()
@@ -70,7 +70,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt'], []))
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_with_ignore_file(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_path, output_filepath=None, ignore_file=self.ignore_file, include_hidden=False, algorithm=self.algorithm)
@@ -79,7 +79,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt', '.hidden_file'])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt', '.hidden_file'], []))
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_include_hidden(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_path, output_filepath=None, ignore_file=None, include_hidden=True, algorithm=self.algorithm)
@@ -88,7 +88,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt'], []))
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_different_algorithm(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         algorithm = 'sha256'
@@ -106,7 +106,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=False)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=[])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=([], []))
     def test_get_checksums_empty_directory(self, mock_gather, mock_open, mock_exists, mock_abspath):
         output_stream = StringIO()
         with patch('sys.stdout', new=output_stream):
@@ -118,7 +118,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
     @patch('builtins.open', new_callable=mock_open)
-    @patch('sumbuddy.Mapper.gather_file_paths', return_value=['file1.txt', 'file2.txt'])
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt'], []))
     def test_get_checksums_invalid_algorithm(self, mock_gather, mock_open, mock_exists, mock_abspath):
         with self.assertRaises(ValueError):
             get_checksums(self.input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='invalid_alg')
