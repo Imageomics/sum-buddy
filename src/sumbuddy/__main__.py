@@ -7,7 +7,6 @@ import hashlib
 from tqdm import tqdm
 import sys
 import os
-import zipfile
 from sumbuddy.archive import ArchiveHandler
 
 def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None):

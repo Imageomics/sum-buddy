@@ -36,7 +36,7 @@ class ArchiveHandler:
                 for member in zip_ref.namelist():
                     # Only add files, not directories
                     if member.endswith('/'):
-                        continued
+                        continue
                     full_path = os.path.join(self.temp_dir, member)
                     # The path as it should appear in the CSV: zip_path/member
                     rel_path = f"{zip_path}/{member}"
