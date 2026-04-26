@@ -60,6 +60,7 @@ def build_test_archive_zip() -> None:
 
 def generate_csv_fixtures() -> None:
     from sumbuddy import get_checksums
+    from sumbuddy.exceptions import NoFilesAfterFilteringError
 
     EXPECTED_OUTPUTS.mkdir(parents=True, exist_ok=True)
     os.chdir(EXAMPLES_DIR)
@@ -68,8 +69,8 @@ def generate_csv_fixtures() -> None:
         out = EXPECTED_OUTPUTS / output_name
         try:
             get_checksums("example_content", str(out), **kwargs)
-        except SystemExit:
-            # sum-buddy bails when the filter excludes everything; emit a header-only fixture.
+        except NoFilesAfterFilteringError:
+            # Filter excluded everything; write a header-only fixture so the file still exists.
             out.write_text("filepath,filename,md5\n")
 
     for ignore_path in sorted(EXAMPLES_DIR.glob(".sbignore_*")):

@@ -32,10 +32,7 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
         if include_hidden:
             print("Warning: --include-hidden (-H) flag is ignored when input is a single file.")
     else:
-        try:
-            regular_files, archive_files = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
-        except (EmptyInputDirectoryError, NoFilesAfterFilteringError) as e:
-            sys.exit(str(e))
+        regular_files, archive_files = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
 
     # Exclude the output file from being hashed
     if output_filepath:
@@ -102,7 +99,7 @@ def main():
 
     try:
         get_checksums(args.input_path, args.output_file, args.ignore_file, args.include_hidden, args.algorithm, args.length)
-    except (LengthUsedForFixedLengthHashError) as e:
+    except (EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError) as e:
         sys.exit(str(e))
 
 
