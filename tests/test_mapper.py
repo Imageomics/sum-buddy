@@ -35,7 +35,7 @@ class TestMapper(unittest.TestCase):
             with open(os.path.join(subdir_path, '.hidden.txt'), 'w') as file:
                 file.write('Some content')
             
-            regular_files, zip_archives = mapper.gather_file_paths(temp_dir)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir)
             self.assertEqual(len(regular_files), 3)
             self.assertIn(os.path.join(temp_dir, 'file1.txt'), regular_files)
             self.assertIn(os.path.join(temp_dir, 'file2.txt'), regular_files)
@@ -47,12 +47,12 @@ class TestMapper(unittest.TestCase):
             with open(ignore_file_path, 'w') as ignore_file:
                 ignore_file.write("*.txt")
 
-            regular_files, zip_archives = mapper.gather_file_paths(temp_dir, ignore_file=ignore_file_path)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir, ignore_file=ignore_file_path)
             self.assertEqual(len(regular_files), 1)
             self.assertIn(os.path.join(temp_dir, 'ignore_file'), regular_files)
             
             # Test including hidden files
-            regular_files, zip_archives = mapper.gather_file_paths(temp_dir, include_hidden=True)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir, include_hidden=True)
             self.assertEqual(len(regular_files), 6)
             self.assertIn(os.path.join(temp_dir, 'file1.txt'), regular_files)
             self.assertIn(os.path.join(temp_dir, 'file2.txt'), regular_files)
@@ -61,7 +61,7 @@ class TestMapper(unittest.TestCase):
             self.assertIn(os.path.join(subdir_path, 'file3.txt'), regular_files)
             self.assertIn(os.path.join(subdir_path, '.hidden.txt'), regular_files)
             
-            regular_files, zip_archives = mapper.gather_file_paths(temp_dir)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir)
             self.assertEqual(len(regular_files), 4)
             self.assertIn(os.path.join(temp_dir, 'file1.txt'), regular_files)
             self.assertIn(os.path.join(temp_dir, 'file2.txt'), regular_files)
