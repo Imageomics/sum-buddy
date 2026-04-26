@@ -141,7 +141,7 @@ To ignore files based on patterns, use the `--ignore-file` (or `-i`) option with
 
 You may explore the filtering capabilities of the `--ignore-file` option by using the provided example files under `examples/` and pointing at `examples/example_content`. The expected CSV output files are provided in `examples/expected_outputs/`.
 
-The `bash` script, `examples/run_examples` will run all the examples; it was used to generate the `expected_outputs`.
+The script `scripts/generate_fixtures.py` rebuilds the binary archives under `examples/example_content/` and `tests/`, then runs all `.sbignore_*` scenarios to produce `examples/expected_outputs/`. Use it whenever a fixture needs regeneration; archive bytes are pinned (their MD5s appear in fixtures and in the README), so verify diffs before committing.
 
 ### Python Package Usage
 We expose three functions to be used in your Python code:
