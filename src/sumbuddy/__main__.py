@@ -1,18 +1,18 @@
 import argparse
 from sumbuddy.hasher import Hasher
 from sumbuddy.mapper import Mapper
+from sumbuddy.archive import ArchiveHandler
 from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError
 import csv
 import hashlib
 from tqdm import tqdm
 import sys
 import os
-from sumbuddy.archive import ArchiveHandler
 
 def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None):
     """
     Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore. Checksum column is labeled by the selected algorithm (e.g., 'md5' or 'sha256').
-    
+
     Parameters:
     ------------
     input_path - String. File or directory to traverse for files.
@@ -26,14 +26,14 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
 
     if os.path.isfile(input_path):
         regular_files = [input_path]
-        zip_archives = []
+        archive_files = []
         if ignore_file:
             print("Warning: --ignore-file (-i) flag is ignored when input is a single file.")
         if include_hidden:
             print("Warning: --include-hidden (-H) flag is ignored when input is a single file.")
     else:
         try:
-            regular_files, zip_archives = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
+            regular_files, archive_files = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
         except (EmptyInputDirectoryError, NoFilesAfterFilteringError) as e:
             sys.exit(str(e))
 
@@ -41,9 +41,10 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
     if output_filepath:
         output_file_abs_path = os.path.abspath(output_filepath)
         regular_files = [path for path in regular_files if os.path.abspath(path) != output_file_abs_path]
-        zip_archives = [path for path in zip_archives if os.path.abspath(path) != output_file_abs_path]
+        archive_files = [path for path in archive_files if os.path.abspath(path) != output_file_abs_path]
 
     hasher = Hasher(algorithm)
+    archive_handler = ArchiveHandler()
     output_stream = open(output_filepath, 'w', newline='') if output_filepath else sys.stdout
 
     try:
@@ -51,22 +52,22 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
         writer.writerow(["filepath", "filename", f"{algorithm}"])
 
         disable_tqdm = output_filepath is None
-        total_files = len(regular_files) + sum(1 for z in zip_archives for _ in ArchiveHandler.stream_zip(z)) + len(zip_archives)
+        total_files = (
+            len(regular_files)
+            + len(archive_files)
+            + sum(archive_handler.count_members(p) for p in archive_files)
+        )
         with tqdm(total=total_files, desc=f"Calculating {algorithm} checksums on {input_path}", disable=disable_tqdm) as pbar:
-            # Process regular files
             for file_path in regular_files:
                 checksum = hasher.checksum_file(file_path, algorithm=algorithm, length=length)
                 writer.writerow([file_path, os.path.basename(file_path), checksum])
                 pbar.update(1)
-            # Process zip archives
-            for zip_path in zip_archives:
-                # Write checksum for the zip file itself
-                checksum = hasher.checksum_file(zip_path, algorithm=algorithm, length=length)
-                writer.writerow([zip_path, os.path.basename(zip_path), checksum])
+            for archive_path in archive_files:
+                checksum = hasher.checksum_file(archive_path, algorithm=algorithm, length=length)
+                writer.writerow([archive_path, os.path.basename(archive_path), checksum])
                 pbar.update(1)
-                # Write checksums for each file inside the zip
-                for member, file_obj in ArchiveHandler.stream_zip(zip_path):
-                    virtual_path = f"{zip_path}/{member}"
+                for member, file_obj in archive_handler.iter_members(archive_path):
+                    virtual_path = f"{archive_path}/{member}"
                     checksum = hasher.checksum_file(file_obj, algorithm=algorithm, length=length)
                     writer.writerow([virtual_path, os.path.basename(member), checksum])
                     pbar.update(1)
@@ -74,12 +75,12 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
         if output_filepath:
             output_stream.close()
 
-    if output_filepath:     
+    if output_filepath:
         print(f"{algorithm} checksums for {input_path} written to {output_filepath}")
 
 def main():
     available_algorithms = ', '.join(hashlib.algorithms_available)
-    
+
     parser = argparse.ArgumentParser(description="Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)")
     parser.add_argument("input_path", help="File or directory to traverse for files")
     parser.add_argument("-o", "--output-file", help="Filepath for the output CSV file; defaults to stdout", default=None)
@@ -98,7 +99,7 @@ def main():
         overwrite = input(f"Output file '{args.output_file}' already exists. Overwrite? [y/n]: ")
         if overwrite.lower() != 'y':
             sys.exit("Exited without executing")
-        
+
     try:
         get_checksums(args.input_path, args.output_file, args.ignore_file, args.include_hidden, args.algorithm, args.length)
     except (LengthUsedForFixedLengthHashError) as e:
