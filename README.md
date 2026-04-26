@@ -50,6 +50,9 @@ sum-buddy examples/example_content/
 > filepath,filename,md5
 > examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > ```
 
 - **Output to File:**
@@ -58,7 +61,7 @@ sum-buddy --output-file examples/checksums.csv examples/example_content/
 ```
 > Output
 > ```console
-> Calculating md5 checksums on examples/example_content/: 100%|███████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00, 1552.01it/s]
+> Calculating md5 checksums on examples/example_content/: 100%|███████████████████████████████████████████████████████████████████████████| 5/5 [00:00<00:00, 1552.01it/s]
 > md5 checksums for examples/example_content/ written to examples/checksums.csv
 > ```
 ```bash
@@ -69,6 +72,9 @@ cat examples/checksums.csv
 > filepath,filename,md5
 > examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > ```
 
 - **Ignore Contents Based on Patterns:**
@@ -97,7 +103,7 @@ sum-buddy --output-file examples/checksums.csv --include-hidden examples/example
 ```
 > Output
 > ```console
-> Calculating md5 checksums on examples/example_content/: 100%|████████████████████████████████████████████████████████████████████████████| 8/8 [00:00<00:00, 2101.35it/s]
+> Calculating md5 checksums on examples/example_content/: 100%|████████████████████████████████████████████████████████████████████████████| 11/11 [00:00<00:00, 2101.35it/s]
 > md5 checksums for examples/example_content/ written to examples/checksums.csv
 > ```
 
@@ -115,34 +121,17 @@ cat examples/checksums.csv
 > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/dir/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
 > examples/example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 >```
 
 - **ZIP Support:**
-  sum-buddy supports processing ZIP files. When a ZIP file is encountered, it will:
-  - Calculate the checksum of the ZIP file itself.
-  - List each file inside the ZIP as `zipfile.zip/filename` with its own checksum, using in-memory streaming (no extraction to disk).
+  sum-buddy treats ZIP files as both a hashed artifact and a container. For each ZIP encountered during a walk, it:
+  - emits a row for the ZIP file itself, and
+  - emits a row for each non-directory member, with `filepath` of the form `path/to/archive.zip/inner/path`, computed via in-memory streaming (no extraction to disk).
 
-  Example:
-  ```bash
-  sum-buddy --output-file examples/checksums_zip.csv examples/example_content/
-  ```
-  > Output
-  > ```console
-  > Calculating md5 checksums on examples/example_content/: 100%|████████████████████████████████████████████████████████████████████████████| 5/5 [00:00<00:00, 15109.16it/s]
-  > md5 checksums for examples/example_content/ written to examples/checksums_zip.csv
-  > ```
-  ```bash
-  cat examples/checksums_zip.csv
-  ```
-  > Output:
-  > ```console
-  > filepath,filename,md5
-  > examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-  > examples/example_content/testzip.zip,testzip.zip,dcf68ba27f40590ff899b63d44e18836
-  > examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-  > examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-  > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
-  > ```
+  The basic-usage and include-hidden examples above include `examples/example_content/testzip.zip` to demonstrate this. Member ordering follows the archive's central directory.
 
 If only a target directory is passed, the default settings are to ignore hidden files and directories (those that begin with a `.`), use the `md5` algorithm, and print output to `stdout`, which can be piped (`|`).
 

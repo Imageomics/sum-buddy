@@ -4,16 +4,19 @@ import os
 from unittest.mock import patch
 from sumbuddy.filter import Filter
 from sumbuddy.hasher import Hasher
+from sumbuddy.archive import ArchiveHandler
 
-class TestFilter(unittest.TestCase):  
+class TestFilter(unittest.TestCase):
     def setUp(self):
         self.examples_folder = os.path.join(os.path.dirname(__file__), '..', 'examples')
         self.example_content_folder = os.path.join(self.examples_folder, 'example_content')
         self.expected_outputs_folder = os.path.join(self.examples_folder, 'expected_outputs')
-        
+
         self.filter = Filter()
 
         self.hasher = Hasher()
+
+        self.archive_handler = ArchiveHandler()
 
     # Utilize the examples folder to test the filter class.
     def check_output(self, ignore_filename, expected_output_filename):
@@ -39,7 +42,13 @@ class TestFilter(unittest.TestCase):
                     md5_hash = self.hasher.checksum_file(filepath)
                     relative_filepath = os.path.relpath(filepath, start=self.examples_folder)
                     actual_output.append(f"{relative_filepath},{filename},{md5_hash}")
-        
+                    if self.archive_handler.is_supported_archive(filepath):
+                        for member, file_obj in self.archive_handler.iter_members(filepath):
+                            member_hash = self.hasher.checksum_file(file_obj)
+                            actual_output.append(
+                                f"{relative_filepath}/{member},{os.path.basename(member)},{member_hash}"
+                            )
+
         expected_output.sort()
         actual_output.sort()
 
@@ -90,7 +99,13 @@ class TestFilter(unittest.TestCase):
                         hash_value = self.hasher.checksum_file(filepath)
                         relative_filepath = os.path.relpath(filepath, start=self.examples_folder)
                         actual_output.append(f"{relative_filepath},{filename},{hash_value}")
-            
+                        if self.archive_handler.is_supported_archive(filepath):
+                            for member, file_obj in self.archive_handler.iter_members(filepath):
+                                member_hash = self.hasher.checksum_file(file_obj)
+                                actual_output.append(
+                                    f"{relative_filepath}/{member},{os.path.basename(member)},{member_hash}"
+                                )
+
             self.assertTrue(mock_method.called)
             
             expected_output.sort()
@@ -102,8 +117,10 @@ class TestFilter(unittest.TestCase):
         expected_output = [
             'filepath,filename,hash',
             'example_content/file.txt,file.txt,sha256_hash',
-            'example_content/dir/file.txt,file.txt,sha256_hash'
-            
+            'example_content/dir/file.txt,file.txt,sha256_hash',
+            'example_content/testzip.zip,testzip.zip,sha256_hash',
+            'example_content/testzip.zip/file.txt,file.txt,sha256_hash',
+            'example_content/testzip.zip/dir/file.txt,file.txt,sha256_hash'
         ]
         self.check_output_with_hashing_algorithm('sha256_hash', expected_output, '.sbignore_hidden_files')
 
@@ -113,7 +130,10 @@ class TestFilter(unittest.TestCase):
             'example_content/.hidden_file,.hidden_file,shake_128',
             'example_content/.hidden_dir/.hidden_file,.hidden_file,shake_128',
             'example_content/dir/.hidden_file,.hidden_file,shake_128',
-            'example_content/dir/.hidden_dir/.hidden_file,.hidden_file,shake_128'
+            'example_content/dir/.hidden_dir/.hidden_file,.hidden_file,shake_128',
+            'example_content/testzip.zip,testzip.zip,shake_128',
+            'example_content/testzip.zip/file.txt,file.txt,shake_128',
+            'example_content/testzip.zip/dir/file.txt,file.txt,shake_128'
         ]
         self.check_output_with_hashing_algorithm('shake_128', expected_output, '.sbignore_specific_file')
 
@@ -133,7 +153,10 @@ class TestFilter(unittest.TestCase):
             'example_content/.hidden_file,.hidden_file,sha3_256',
             'example_content/file.txt,file.txt,sha3_256',
             'example_content/.hidden_dir/.hidden_file,.hidden_file,sha3_256',
-            'example_content/.hidden_dir/file.txt,file.txt,sha3_256'        
+            'example_content/.hidden_dir/file.txt,file.txt,sha3_256',
+            'example_content/testzip.zip,testzip.zip,sha3_256',
+            'example_content/testzip.zip/file.txt,file.txt,sha3_256',
+            'example_content/testzip.zip/dir/file.txt,file.txt,sha3_256'
         ]
         self.check_output_with_hashing_algorithm('sha3_256', expected_output, '.sbignore_subdir')
 

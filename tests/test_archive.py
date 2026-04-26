@@ -1,4 +1,3 @@
-import csv
 import shutil
 import tempfile
 import zipfile
@@ -113,23 +112,15 @@ class TestHasherWithZip:
         assert len(checksum) > 0
 
 
-def test_integration_archive_support():
-    """End-to-end: get_checksums emits one row for the archive and one per non-directory member."""
+def test_integration_archive_support_matches_default_fixture(monkeypatch, tmp_path):
+    """End-to-end: get_checksums against examples/example_content/ matches the committed default.csv fixture."""
     from sumbuddy import get_checksums
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_zip_path = Path(temp_dir) / "test_archive.zip"
-        shutil.copy2(TEST_ZIP, temp_zip_path)
-        output_file = Path(temp_dir) / "checksums.csv"
-        get_checksums(temp_dir, output_file)
-        assert output_file.exists()
-        with open(output_file, "r") as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        assert len(rows) == 3
-        zip_rows = [r for r in rows if r["filename"] == "test_archive.zip"]
-        assert len(zip_rows) == 1
-        zip_content_rows = [r for r in rows if "test_archive.zip/" in r["filepath"]]
-        assert len(zip_content_rows) == 2
-        for row in rows:
-            assert row["md5"] and len(row["md5"]) > 0
+    examples_dir = Path(__file__).parent.parent / "examples"
+    monkeypatch.chdir(examples_dir)
+    output_file = tmp_path / "checksums.csv"
+    get_checksums("example_content", str(output_file))
+
+    actual = output_file.read_text().splitlines()
+    expected = (examples_dir / "expected_outputs" / "default.csv").read_text().splitlines()
+    assert sorted(actual) == sorted(expected)
