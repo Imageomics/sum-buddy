@@ -1,3 +1,4 @@
+from sumbuddy.__about__ import __version__
 from sumbuddy.__main__ import get_checksums
 from sumbuddy.mapper import Mapper
 from sumbuddy.hasher import Hasher
@@ -10,4 +11,4 @@ hasher_instance = Hasher()
 gather_file_paths = mapper_instance.gather_file_paths
 checksum_file = hasher_instance.checksum_file
 
-__all__ = ["checksum_file", "get_checksums", "gather_file_paths"]
+__all__ = ["__version__", "checksum_file", "get_checksums", "gather_file_paths"]
