@@ -17,7 +17,7 @@ pip install sum-buddy
 ### Command Line Usage
 
 ```
-usage: sum-buddy [-h] [-V] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] [-l LENGTH] input_path
+usage: sum-buddy [-h] [-V] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] input_path
 
 Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)
 
