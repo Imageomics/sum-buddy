@@ -50,6 +50,9 @@ sum-buddy examples/example_content/
 > filepath,filename,md5
 > examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > ```
 
 - **Output to File:**
@@ -58,7 +61,7 @@ sum-buddy --output-file examples/checksums.csv examples/example_content/
 ```
 > Output
 > ```console
-> Calculating md5 checksums on examples/example_content/: 100%|███████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00, 1552.01it/s]
+> Calculating md5 checksums on examples/example_content/: 100%|███████████████████████████████████████████████████████████████████████████| 5/5 [00:00<00:00, 1552.01it/s]
 > md5 checksums for examples/example_content/ written to examples/checksums.csv
 > ```
 ```bash
@@ -69,6 +72,9 @@ cat examples/checksums.csv
 > filepath,filename,md5
 > examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > ```
 
 - **Ignore Contents Based on Patterns:**
@@ -97,7 +103,7 @@ sum-buddy --output-file examples/checksums.csv --include-hidden examples/example
 ```
 > Output
 > ```console
-> Calculating md5 checksums on examples/example_content/: 100%|████████████████████████████████████████████████████████████████████████████| 8/8 [00:00<00:00, 2101.35it/s]
+> Calculating md5 checksums on examples/example_content/: 100%|████████████████████████████████████████████████████████████████████████████| 11/11 [00:00<00:00, 2101.35it/s]
 > md5 checksums for examples/example_content/ written to examples/checksums.csv
 > ```
 
@@ -115,8 +121,17 @@ cat examples/checksums.csv
 > examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/dir/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
 > examples/example_content/dir/.hidden_dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 >```
 
+- **ZIP Support:**
+  sum-buddy treats ZIP files as both a hashed artifact and a container. For each ZIP encountered during a walk, it:
+  - emits a row for the ZIP file itself, and
+  - emits a row for each non-directory member, with `filepath` of the form `path/to/archive.zip/inner/path`, computed via in-memory streaming (no extraction to disk).
+
+  The basic-usage and include-hidden examples above include `examples/example_content/testzip.zip` to demonstrate this. Member ordering follows the archive's central directory.
 
 If only a target directory is passed, the default settings are to ignore hidden files and directories (those that begin with a `.`), use the `md5` algorithm, and print output to `stdout`, which can be piped (`|`).
 
@@ -126,7 +141,7 @@ To ignore files based on patterns, use the `--ignore-file` (or `-i`) option with
 
 You may explore the filtering capabilities of the `--ignore-file` option by using the provided example files under `examples/` and pointing at `examples/example_content`. The expected CSV output files are provided in `examples/expected_outputs/`.
 
-The `bash` script, `examples/run_examples` will run all the examples; it was used to generate the `expected_outputs`.
+The script `scripts/generate_fixtures.py` rebuilds the binary archives under `examples/example_content/` and `tests/`, then runs all `.sbignore_*` scenarios to produce `examples/expected_outputs/`. Use it whenever a fixture needs regeneration; archive bytes are pinned (their MD5s appear in fixtures and in the README), so verify diffs before committing.
 
 ### Python Package Usage
 We expose three functions to be used in your Python code:
@@ -172,9 +187,11 @@ pip install -e ".[dev]"
 3. Install pre-commit hook
 ```bash
 pre-commit install
-pre-commit autoupdate # optionally update
 ```
-4. Run tests:
+
+### Tests
+
+To run all tests:
 ```bash
-pytest
+python -m pytest
 ```

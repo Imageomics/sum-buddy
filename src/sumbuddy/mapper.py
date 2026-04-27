@@ -1,15 +1,17 @@
 import os
 from sumbuddy.filter import Filter
 from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, NotADirectoryError
+from sumbuddy.archive import ArchiveHandler
 
 class Mapper:
     def __init__(self):
         self.filter_manager = Filter()
+        self.archive_handler = ArchiveHandler()
 
     def reset_filter(self, ignore_file=None, include_hidden=False):
         """
         Reset the filter manager with new ignore patterns.
-        
+
         Parameters:
         ------------
         ignore_file - String [optional]. Filepath for the ignore patterns file.
@@ -28,24 +30,26 @@ class Mapper:
     def gather_file_paths(self, input_directory, ignore_file=None, include_hidden=False):
         """
         Generate list of file paths in the input directory based on ignore pattern rules.
-        
+
         Parameters:
         ------------
         input_directory - String. Directory to traverse for files.
         ignore_file - String [optional]. Filepath for the ignore patterns file.
         include_hidden - Boolean [optional]. Whether to include hidden files.
-        
+
         Returns:
         ---------
-        file_paths - List. Files in input_directory that are not ignored.
+        regular_files - List. Non-archive files in input_directory that are not ignored.
+        archive_files - List. Archive files in input_directory that are not ignored.
         """
 
         if not os.path.isdir(input_directory):
             raise NotADirectoryError(input_directory)
-        
+
         self.reset_filter(ignore_file=ignore_file, include_hidden=include_hidden)
-        
-        file_paths = []
+
+        regular_files = []
+        archive_files = []
         root_directory = os.path.abspath(input_directory)
         has_files = False
 
@@ -55,11 +59,14 @@ class Mapper:
             for name in files:
                 file_path = os.path.join(root, name)
                 if self.filter_manager.should_include(file_path, root_directory):
-                    file_paths.append(file_path)
+                    if self.archive_handler.is_supported_archive(file_path):
+                        archive_files.append(file_path)
+                    else:
+                        regular_files.append(file_path)
 
         if not has_files:
             raise EmptyInputDirectoryError(input_directory)
-        if not file_paths:
+        if not (regular_files or archive_files):
             raise NoFilesAfterFilteringError(input_directory, ignore_file)
 
-        return file_paths
+        return regular_files, archive_files

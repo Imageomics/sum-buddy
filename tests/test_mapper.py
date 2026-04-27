@@ -35,11 +35,11 @@ class TestMapper(unittest.TestCase):
             with open(os.path.join(subdir_path, '.hidden.txt'), 'w') as file:
                 file.write('Some content')
             
-            file_paths = mapper.gather_file_paths(temp_dir)
-            self.assertEqual(len(file_paths), 3)
-            self.assertIn(os.path.join(temp_dir, 'file1.txt'), file_paths)
-            self.assertIn(os.path.join(temp_dir, 'file2.txt'), file_paths)
-            self.assertIn(os.path.join(subdir_path, 'file3.txt'), file_paths)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir)
+            self.assertEqual(len(regular_files), 3)
+            self.assertIn(os.path.join(temp_dir, 'file1.txt'), regular_files)
+            self.assertIn(os.path.join(temp_dir, 'file2.txt'), regular_files)
+            self.assertIn(os.path.join(subdir_path, 'file3.txt'), regular_files)
             
             # Create ignore file and test with it, if we ignore the .txt files, we will
             # only have the ignore file in the list of file paths.
@@ -47,26 +47,26 @@ class TestMapper(unittest.TestCase):
             with open(ignore_file_path, 'w') as ignore_file:
                 ignore_file.write("*.txt")
 
-            file_paths = mapper.gather_file_paths(temp_dir, ignore_file=ignore_file_path)
-            self.assertEqual(len(file_paths), 1)
-            self.assertIn(os.path.join(temp_dir, 'ignore_file'), file_paths)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir, ignore_file=ignore_file_path)
+            self.assertEqual(len(regular_files), 1)
+            self.assertIn(os.path.join(temp_dir, 'ignore_file'), regular_files)
             
             # Test including hidden files
-            file_paths = mapper.gather_file_paths(temp_dir, include_hidden=True)
-            self.assertEqual(len(file_paths), 6)
-            self.assertIn(os.path.join(temp_dir, 'file1.txt'), file_paths)
-            self.assertIn(os.path.join(temp_dir, 'file2.txt'), file_paths)
-            self.assertIn(os.path.join(temp_dir, 'ignore_file'), file_paths)
-            self.assertIn(os.path.join(temp_dir, '.hidden.txt'), file_paths)
-            self.assertIn(os.path.join(subdir_path, 'file3.txt'), file_paths)
-            self.assertIn(os.path.join(subdir_path, '.hidden.txt'), file_paths)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir, include_hidden=True)
+            self.assertEqual(len(regular_files), 6)
+            self.assertIn(os.path.join(temp_dir, 'file1.txt'), regular_files)
+            self.assertIn(os.path.join(temp_dir, 'file2.txt'), regular_files)
+            self.assertIn(os.path.join(temp_dir, 'ignore_file'), regular_files)
+            self.assertIn(os.path.join(temp_dir, '.hidden.txt'), regular_files)
+            self.assertIn(os.path.join(subdir_path, 'file3.txt'), regular_files)
+            self.assertIn(os.path.join(subdir_path, '.hidden.txt'), regular_files)
             
-            file_paths = mapper.gather_file_paths(temp_dir)
-            self.assertEqual(len(file_paths), 4)
-            self.assertIn(os.path.join(temp_dir, 'file1.txt'), file_paths)
-            self.assertIn(os.path.join(temp_dir, 'file2.txt'), file_paths)
-            self.assertIn(os.path.join(temp_dir, 'ignore_file'), file_paths)
-            self.assertIn(os.path.join(subdir_path, 'file3.txt'), file_paths)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir)
+            self.assertEqual(len(regular_files), 4)
+            self.assertIn(os.path.join(temp_dir, 'file1.txt'), regular_files)
+            self.assertIn(os.path.join(temp_dir, 'file2.txt'), regular_files)
+            self.assertIn(os.path.join(temp_dir, 'ignore_file'), regular_files)
+            self.assertIn(os.path.join(subdir_path, 'file3.txt'), regular_files)
 
     def test_gather_file_paths_empty(self):
         mapper = Mapper()

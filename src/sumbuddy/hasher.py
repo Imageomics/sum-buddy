@@ -5,13 +5,13 @@ class Hasher:
     def __init__(self, algorithm='md5'):
         self.algorithm = algorithm
 
-    def checksum_file(self, file_path, algorithm=None, length=None):
+    def checksum_file(self, file_path_or_obj, algorithm=None, length=None):
         """
         Calculate the checksum of a file using the specified algorithm.
         
         Parameters:
         ------------
-        file_path - String. Path to file to apply checksum function.
+        file_path_or_obj - String or file-like object. Path to file or file-like object to apply checksum function.
         algorithm - String. Hash function to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
         length - Integer [optional]. Length of the digest for SHAKE and BLAKE algorithms in bytes.
         
@@ -55,9 +55,14 @@ class Hasher:
                 raise LengthUsedForFixedLengthHashError(algorithm)
             hash_func = hashlib.new(algorithm)
 
-        # Read the file and update the hash function
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
+        # Handle both file paths and file-like objects
+        if isinstance(file_path_or_obj, str):
+            with open(file_path_or_obj, "rb") as f:
+                for chunk in iter(lambda: f.read(4096), b""):
+                    hash_func.update(chunk)
+        else:
+            # Assume it's a file-like object
+            for chunk in iter(lambda: file_path_or_obj.read(4096), b""):
                 hash_func.update(chunk)
 
         # Return the hash digest

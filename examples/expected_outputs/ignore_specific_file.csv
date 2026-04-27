@@ -3,3 +3,6 @@ example_content/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
 example_content/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
 example_content/dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
 example_content/dir/.hidden_dir/.hidden_file,.hidden_file,d41d8cd98f00b204e9800998ecf8427e
+example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
