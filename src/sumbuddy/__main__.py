@@ -1,4 +1,5 @@
 import argparse
+from sumbuddy.__about__ import __version__
 from sumbuddy.hasher import Hasher
 from sumbuddy.mapper import Mapper
 from sumbuddy.archive import ArchiveHandler
@@ -79,6 +80,7 @@ def main():
     available_algorithms = ', '.join(hashlib.algorithms_available)
 
     parser = argparse.ArgumentParser(description="Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)")
+    parser.add_argument("-V", "--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("input_path", help="File or directory to traverse for files")
     parser.add_argument("-o", "--output-file", help="Filepath for the output CSV file; defaults to stdout", default=None)
     group = parser.add_mutually_exclusive_group()
