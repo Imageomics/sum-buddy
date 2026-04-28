@@ -57,7 +57,7 @@ class Mapper:
             if files:
                 has_files = True
             for name in files:
-                file_path = os.path.join(root, name)
+                file_path = os.path.normpath(os.path.join(root, name))
                 if self.filter_manager.should_include(file_path, root_directory):
                     if self.archive_handler.is_supported_archive(file_path):
                         archive_files.append(file_path)

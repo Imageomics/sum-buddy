@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
 import os
+import tempfile
 from io import StringIO
 
 from sumbuddy import get_checksums
@@ -37,6 +38,51 @@ class TestGetChecksums(unittest.TestCase):
         output = output_stream.getvalue()
         self.assertIn('filepath,filename,md5', output)
         self.assertIn(f'{self.input_path},{os.path.basename(self.input_path)},dummychecksum', output)
+
+    @patch('sumbuddy.Hasher.checksum_file', return_value='dummychecksum')
+    def test_get_checksums_normalizes_dot_directory_paths_in_stdout(self, mock_checksum):
+        output_stream = StringIO()
+        original_cwd = os.getcwd()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            os.makedirs(os.path.join(temp_dir, 'subdir'), exist_ok=True)
+            with open(os.path.join(temp_dir, 'file1.txt'), 'w') as file:
+                file.write('Some content')
+            with open(os.path.join(temp_dir, 'subdir', 'file2.txt'), 'w') as file:
+                file.write('Some content')
+
+            try:
+                os.chdir(temp_dir)
+                with patch('sys.stdout', new=output_stream):
+                    get_checksums('.', output_filepath=None, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
+            finally:
+                os.chdir(original_cwd)
+
+        output = output_stream.getvalue()
+        self.assertIn('file1.txt,file1.txt,dummychecksum', output)
+        self.assertIn('subdir/file2.txt,file2.txt,dummychecksum', output)
+        self.assertNotIn('./file1.txt,', output)
+        self.assertNotIn('./subdir/file2.txt,', output)
+
+    @patch('sumbuddy.Hasher.checksum_file', return_value='dummychecksum')
+    def test_get_checksums_normalizes_dot_single_file_path_in_stdout(self, mock_checksum):
+        output_stream = StringIO()
+        original_cwd = os.getcwd()
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with open(os.path.join(temp_dir, 'file1.txt'), 'w') as file:
+                file.write('Some content')
+
+            try:
+                os.chdir(temp_dir)
+                with patch('sys.stdout', new=output_stream):
+                    get_checksums('./file1.txt', output_filepath=None, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
+            finally:
+                os.chdir(original_cwd)
+
+        output = output_stream.getvalue()
+        self.assertIn('file1.txt,file1.txt,dummychecksum', output)
+        self.assertNotIn('./file1.txt,', output)
 
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)

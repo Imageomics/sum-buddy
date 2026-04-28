@@ -26,7 +26,7 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
     mapper = Mapper()
 
     if os.path.isfile(input_path):
-        regular_files = [input_path]
+        regular_files = [os.path.normpath(input_path)]
         archive_files = []
         if ignore_file:
             print("Warning: --ignore-file (-i) flag is ignored when input is a single file.")

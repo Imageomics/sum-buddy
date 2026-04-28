@@ -96,7 +96,6 @@ class TestMapper(unittest.TestCase):
         with tempfile.NamedTemporaryFile() as temp_file:
             with self.assertRaises(NotADirectoryError):
                 mapper.gather_file_paths(temp_file.name)
-           
 
 if __name__ == '__main__':
     unittest.main()
