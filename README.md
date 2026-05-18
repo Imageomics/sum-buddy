@@ -17,7 +17,7 @@ pip install sum-buddy
 ### Command Line Usage
 
 ```
-usage: sum-buddy [-h] [-V] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] input_path
+usage: sum-buddy [-h] [-V] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] [-l LENGTH] [--archive-dive | --no-archive-dive] input_path
 
 Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)
 
@@ -36,6 +36,8 @@ options:
                         Hash algorithm to use (default: md5; available: ripemd160, sha3_224, sha512_224, blake2b, sha384, sha256, sm3, sha3_256, shake_256, sha512, sha1, sha224, md5, md5-sha1, sha3_384, sha3_512, sha512_256, shake_128, blake2s)
   -l LENGTH, --length LENGTH
                         Length of the digest for SHAKE (required) or BLAKE (optional) algorithms in bytes
+  --archive-dive, --no-archive-dive
+                        Descend into archive files and hash their members (default). Use --no-archive-dive to hash archives as opaque files.
 ```
 
 > Note: The available algorithms are determined by those available to `hashlib` and may vary depending on your system and OpenSSL version, so the set shown on your system with `sum-buddy -h` may be different from above. At a minimum, it should include: `{blake2s, blake2b, md5, sha1, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, shake_128, shake_256}`, which is given by `hashlib.algorithms_guaranteed`.
@@ -128,17 +130,31 @@ cat examples/checksums.csv
 >```
 
 - **ZIP Support:**
-  sum-buddy treats ZIP files as both a hashed artifact and a container. For each ZIP encountered during a walk, it:
-  - emits a row for the ZIP file itself, and
-  - emits a row for each non-directory member, with `filepath` of the form `path/to/archive.zip/inner/path`, computed via in-memory streaming (no extraction to disk).
+  By default, sum-buddy treats ZIP files as both a hashed artifact and a container. For each ZIP encountered during a walk, it emits a row for the ZIP itself and a row for each non-directory member, with `filepath` of the form `path/to/archive.zip/inner/path`, computed via in-memory streaming (no extraction to disk). Pass `--no-archive-dive` to hash each archive as a single file instead.
 
-  The basic-usage and include-hidden examples above include `examples/example_content/testzip.zip` to demonstrate this. Member ordering follows the archive's central directory.
+  Ignore patterns decide whether an archive file is included in the walk; once an archive is included and expansion is enabled, all of its non-directory members are hashed.
+
+  The basic-usage and include-hidden examples above include `examples/example_content/testzip.zip` to demonstrate the default behavior. Member ordering follows the archive's central directory.
+
+  Example with `--no-archive-dive`:
+```bash
+sum-buddy --no-archive-dive examples/example_content/
+```
+> Output
+> ```console
+> filepath,filename,md5
+> examples/example_content/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
+> examples/example_content/testzip.zip,testzip.zip,504185ad294a15ca2f9aab27a3ac34d8
+> ```
+
+  The flag is a no-op when `input_path` is a single file; only directory inputs descend by default.
 
 If only a target directory is passed, the default settings are to ignore hidden files and directories (those that begin with a `.`), use the `md5` algorithm, and print output to `stdout`, which can be piped (`|`).
 
 To include all files and directories, including hidden ones, use the `--include-hidden` (or `-H`) option.
 
-To ignore files based on patterns, use the `--ignore-file` (or `-i`) option with the path to a file containing patterns to ignore. The `--ignore-file` works identically to how `git` handles a `.gitignore` file using the implementation from [pathspec](https://github.com/cpburnz/python-pathspec).
+To ignore files based on patterns, use the `--ignore-file` (or `-i`) option with the path to a file containing patterns to ignore. The `--ignore-file` works identically to how `git` handles a `.gitignore` file using the implementation from [pathspec](https://github.com/cpburnz/python-pathspec). Patterns apply to files in the directory tree, including archive files themselves, but not to members inside an included archive; use `--no-archive-dive` to skip archive members entirely.
 
 You may explore the filtering capabilities of the `--ignore-file` option by using the provided example files under `examples/` and pointing at `examples/example_content`. The expected CSV output files are provided in `examples/expected_outputs/`.
 

@@ -79,6 +79,7 @@ def generate_csv_fixtures() -> None:
 
     _run("default.csv")
     _run("include_hidden_true.csv", include_hidden=True)
+    _run("no_archive_dive.csv", archive_dive=False)
 
 
 def main() -> int:

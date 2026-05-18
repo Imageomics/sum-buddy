@@ -1,7 +1,9 @@
 import shutil
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -124,3 +126,60 @@ def test_integration_archive_support_matches_default_fixture(monkeypatch, tmp_pa
     actual = output_file.read_text().splitlines()
     expected = (examples_dir / "expected_outputs" / "default.csv").read_text().splitlines()
     assert sorted(actual) == sorted(expected)
+
+
+def test_integration_no_archive_dive_omits_members(monkeypatch, tmp_path):
+    """End-to-end: get_checksums with archive_dive=False matches the no_archive_dive.csv fixture (archive present, members absent)."""
+    from sumbuddy import get_checksums
+
+    examples_dir = Path(__file__).parent.parent / "examples"
+    monkeypatch.chdir(examples_dir)
+    output_file = tmp_path / "checksums.csv"
+    get_checksums("example_content", str(output_file), archive_dive=False)
+
+    actual = output_file.read_text().splitlines()
+    expected = (examples_dir / "expected_outputs" / "no_archive_dive.csv").read_text().splitlines()
+    assert sorted(actual) == sorted(expected)
+
+
+def test_get_checksums_skips_iter_members_when_dive_disabled(monkeypatch, tmp_path):
+    """archive_dive=False must not invoke ArchiveHandler.iter_members on any discovered archive."""
+    from sumbuddy import get_checksums
+
+    examples_dir = Path(__file__).parent.parent / "examples"
+    monkeypatch.chdir(examples_dir)
+    output_file = tmp_path / "checksums.csv"
+
+    with patch("sumbuddy.__main__.ArchiveHandler.iter_members") as mock_iter:
+        get_checksums("example_content", str(output_file), archive_dive=False)
+        mock_iter.assert_not_called()
+
+
+def test_main_passes_archive_dive_false_to_get_checksums(monkeypatch, tmp_path):
+    """--no-archive-dive on the CLI threads archive_dive=False into get_checksums."""
+    from sumbuddy import __main__ as sb_main
+
+    examples_dir = Path(__file__).parent.parent / "examples"
+    monkeypatch.chdir(examples_dir)
+    output_file = tmp_path / "checksums.csv"
+
+    monkeypatch.setattr(sys, "argv", ["sum-buddy", "--no-archive-dive", "-o", str(output_file), "example_content"])
+    with patch("sumbuddy.__main__.get_checksums") as mock_gc:
+        sb_main.main()
+        mock_gc.assert_called_once()
+        assert mock_gc.call_args.kwargs["archive_dive"] is False
+
+
+def test_main_passes_archive_dive_true_by_default(monkeypatch, tmp_path):
+    """Without the flag, get_checksums receives archive_dive=True (the default)."""
+    from sumbuddy import __main__ as sb_main
+
+    examples_dir = Path(__file__).parent.parent / "examples"
+    monkeypatch.chdir(examples_dir)
+    output_file = tmp_path / "checksums.csv"
+
+    monkeypatch.setattr(sys, "argv", ["sum-buddy", "-o", str(output_file), "example_content"])
+    with patch("sumbuddy.__main__.get_checksums") as mock_gc:
+        sb_main.main()
+        mock_gc.assert_called_once()
+        assert mock_gc.call_args.kwargs["archive_dive"] is True

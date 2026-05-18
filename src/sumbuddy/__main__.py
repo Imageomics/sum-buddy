@@ -10,7 +10,7 @@ from tqdm import tqdm
 import sys
 import os
 
-def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None):
+def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None, archive_dive=True):
     """
     Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore. Checksum column is labeled by the selected algorithm (e.g., 'md5' or 'sha256').
 
@@ -22,6 +22,7 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
     include_hidden - Boolean [optional]. Whether to include hidden files. Default is False.
     algorithm - String. Algorithm to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
     length - Integer [conditionally optional]. Length of the digest for SHAKE (required) and BLAKE (optional) algorithms in bytes.
+    archive_dive - Boolean [optional]. Whether to descend into archive files and hash their members. When False, archives are hashed as opaque files. Default: True.
     """
     mapper = Mapper()
 
@@ -34,6 +35,10 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
             print("Warning: --include-hidden (-H) flag is ignored when input is a single file.")
     else:
         regular_files, archive_files = mapper.gather_file_paths(input_path, ignore_file=ignore_file, include_hidden=include_hidden)
+
+    if not archive_dive:
+        regular_files = regular_files + archive_files
+        archive_files = []
 
     # Exclude the output file from being hashed
     if output_filepath:
@@ -88,6 +93,7 @@ def main():
     group.add_argument("-H", "--include-hidden", action="store_true", help="Include hidden files")
     parser.add_argument("-a", "--algorithm", default="md5", help=f"Hash algorithm to use (default: md5; available: {available_algorithms})")
     parser.add_argument("-l", "--length", type=int, help="Length of the digest for SHAKE (required) or BLAKE (optional) algorithms in bytes")
+    parser.add_argument("--archive-dive", action=argparse.BooleanOptionalAction, default=True, help="Descend into archive files and hash their members (default). Use --no-archive-dive to hash archives as opaque files.")
 
     args = parser.parse_args()
 
@@ -100,7 +106,15 @@ def main():
             sys.exit("Exited without executing")
 
     try:
-        get_checksums(args.input_path, args.output_file, args.ignore_file, args.include_hidden, args.algorithm, args.length)
+        get_checksums(
+            args.input_path,
+            output_filepath=args.output_file,
+            ignore_file=args.ignore_file,
+            include_hidden=args.include_hidden,
+            algorithm=args.algorithm,
+            length=args.length,
+            archive_dive=args.archive_dive,
+        )
     except (EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError) as e:
         sys.exit(str(e))
 
