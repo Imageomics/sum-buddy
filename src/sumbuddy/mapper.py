@@ -36,17 +36,12 @@ class Mapper:
         input_directory - String. Directory to traverse for files.
         ignore_file - String [optional]. Filepath for the ignore patterns file.
         include_hidden - Boolean [optional]. Whether to include hidden files.
-        archive_dive - Boolean [optional]. Whether to classify supported archives
-        separately so callers can descend into their members. When False, archive
-        files are returned with regular_files. Default is True.
+        archive_dive - Boolean [optional]. Whether to classify supported archives separately so callers can descend into their members. When False, archive files are returned with regular_files. Default is True.
 
         Returns:
         ---------
-        regular_files - List. Files in input_directory that are not ignored. When
-        archive_dive is True, this excludes supported archives. When False, it
-        includes them.
-        archive_files - List. Archive files in input_directory that are not ignored
-        and should be expanded by the caller.
+        regular_files - List. Files in input_directory that are not ignored. When archive_dive is True, this excludes supported archives. When False, it includes them.
+        archive_files - List. Archive files in input_directory that are not ignored and should be expanded by the caller.
         """
 
         if not os.path.isdir(input_directory):
