@@ -120,7 +120,12 @@ class TestGetChecksums(unittest.TestCase):
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_with_ignore_file(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_path, output_filepath=None, ignore_file=self.ignore_file, include_hidden=False, algorithm=self.algorithm)
-        mock_gather.assert_called_with(self.input_path, ignore_file=self.ignore_file, include_hidden=False)
+        mock_gather.assert_called_with(
+            self.input_path,
+            ignore_file=self.ignore_file,
+            include_hidden=False,
+            archive_dive=True,
+        )
         
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)
@@ -129,7 +134,33 @@ class TestGetChecksums(unittest.TestCase):
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_include_hidden(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
         get_checksums(self.input_path, output_filepath=None, ignore_file=None, include_hidden=True, algorithm=self.algorithm)
-        mock_gather.assert_called_with(self.input_path, ignore_file=None, include_hidden=True)
+        mock_gather.assert_called_with(
+            self.input_path,
+            ignore_file=None,
+            include_hidden=True,
+            archive_dive=True,
+        )
+
+    @patch('os.path.abspath', side_effect=lambda x: x)
+    @patch('os.path.exists', return_value=True)
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'archive.zip'], []))
+    @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
+    def test_get_checksums_passes_archive_dive_false_to_mapper(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
+        get_checksums(
+            self.input_path,
+            output_filepath=None,
+            ignore_file=None,
+            include_hidden=False,
+            algorithm=self.algorithm,
+            archive_dive=False,
+        )
+        mock_gather.assert_called_with(
+            self.input_path,
+            ignore_file=None,
+            include_hidden=False,
+            archive_dive=False,
+        )
         
     @patch('os.path.abspath', side_effect=lambda x: x)
     @patch('os.path.exists', return_value=True)

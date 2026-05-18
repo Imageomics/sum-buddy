@@ -82,6 +82,15 @@ class TestMapperWithArchives:
             assert isinstance(regular_files, list)
             assert isinstance(archive_files, list)
 
+    def test_gather_file_paths_with_archive_dive_disabled(self):
+        mapper = Mapper()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_zip_path = Path(temp_dir) / "test_archive.zip"
+            shutil.copy2(TEST_ZIP, temp_zip_path)
+            regular_files, archive_files = mapper.gather_file_paths(temp_dir, archive_dive=False)
+            assert str(temp_zip_path) in regular_files
+            assert archive_files == []
+
     def test_gather_file_paths_with_archive_and_filter(self):
         mapper = Mapper()
         with tempfile.TemporaryDirectory() as temp_dir:
