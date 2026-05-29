@@ -132,7 +132,7 @@ cat examples/checksums.csv
 - **ZIP Support:**
   By default, sum-buddy treats ZIP files as both a hashed artifact and a container. For each ZIP encountered during a walk, it emits a row for the ZIP itself and a row for each non-directory member, with `filepath` of the form `path/to/archive.zip/inner/path`, computed via in-memory streaming (no extraction to disk). Pass `--no-archive-dive` to hash each archive as a single file instead.
 
-  Ignore patterns decide whether an archive file is included in the walk; once an archive is included and expansion is enabled, all of its non-directory members are hashed.
+  Ignore patterns decide whether an archive file is included in the walk, but they do not apply *inside* an included archive: once an archive is expanded, all of its file members are hashed, including hidden and platform "junk" files such as `__MACOSX/`, `.DS_Store`, and `.git/`. This is deliberate. An archive is a fixed artifact rather than a live working directory, so the manifest reports exactly what it contains. If a an archive carries files that probably were not meant to be there, that is precisely what you would want surfaced. To filter such contents, extract the archive and run sum-buddy on the resulting directory (where the hidden-file defaults and `.sbignore` rules apply), or pass `--no-archive-dive` to hash the archive as a single opaque file.
 
   The basic-usage and include-hidden examples above include `examples/example_content/testzip.zip` to demonstrate the default behavior. Member ordering follows the archive's central directory.
 
