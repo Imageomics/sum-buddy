@@ -27,7 +27,7 @@ class Mapper:
         else:
             self.filter_manager.read_ignore_patterns(include_hidden=False)  # Default: ignore hidden files
 
-    def gather_file_paths(self, input_directory, ignore_file=None, include_hidden=False):
+    def gather_file_paths(self, input_directory, ignore_file=None, include_hidden=False, archive_dive=True):
         """
         Generate list of file paths in the input directory based on ignore pattern rules.
 
@@ -36,11 +36,12 @@ class Mapper:
         input_directory - String. Directory to traverse for files.
         ignore_file - String [optional]. Filepath for the ignore patterns file.
         include_hidden - Boolean [optional]. Whether to include hidden files.
+        archive_dive - Boolean [optional]. Whether to classify supported archives separately so callers can descend into their members. When False, archive files are returned with regular_files. Default is True.
 
         Returns:
         ---------
-        regular_files - List. Non-archive files in input_directory that are not ignored.
-        archive_files - List. Archive files in input_directory that are not ignored.
+        regular_files - List. Files in input_directory that are not ignored. When archive_dive is True, this excludes supported archives. When False, it includes them.
+        archive_files - List. Archive files in input_directory that are not ignored and should be expanded by the caller.
         """
 
         if not os.path.isdir(input_directory):
@@ -59,7 +60,7 @@ class Mapper:
             for name in files:
                 file_path = os.path.normpath(os.path.join(root, name))
                 if self.filter_manager.should_include(file_path, root_directory):
-                    if self.archive_handler.is_supported_archive(file_path):
+                    if archive_dive and self.archive_handler.is_supported_archive(file_path):
                         archive_files.append(file_path)
                     else:
                         regular_files.append(file_path)

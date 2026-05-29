@@ -1,0 +1,3 @@
+# Test fixtures: output of sum-buddy's CSV writer, which emits CRLF line endings.
+# Treat as binary so git never normalizes line endings across platforms.
+examples/expected_outputs/*.csv -text
