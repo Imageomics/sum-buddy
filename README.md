@@ -17,7 +17,7 @@ pip install sum-buddy
 ### Command Line Usage
 
 ```
-usage: sum-buddy [-h] [-V] [-o OUTPUT_FILE] [-i IGNORE_FILE | -H] [-a ALGORITHM] [-l LENGTH] [--archive-dive | --no-archive-dive] input_path
+usage: sum-buddy [-h] [-V] [-o OUTPUT_FILE] [-f] [-i IGNORE_FILE | -H] [-a ALGORITHM] [-l LENGTH] [--archive-dive | --no-archive-dive] input_path
 
 Generate CSV with filepath, filename, and checksums for all files in a given directory (or a single file)
 
@@ -28,7 +28,8 @@ options:
   -h, --help            show this help message and exit
   -V, --version         show program's version number and exit
   -o OUTPUT_FILE, --output-file OUTPUT_FILE
-                        Filepath for the output CSV file
+                        Filepath for the output CSV file; defaults to stdout
+  -f, --force           Overwrite the output file if it already exists
   -i IGNORE_FILE, --ignore-file IGNORE_FILE
                         Filepath for the ignore patterns file
   -H, --include-hidden  Include hidden files
@@ -79,6 +80,16 @@ cat examples/checksums.csv
 > examples/example_content/testzip.zip/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > examples/example_content/testzip.zip/dir/file.txt,file.txt,7d52c7437e9af58dac029dd11b1024df
 > ```
+
+  If the output file already exists, sum-buddy refuses to overwrite it and exits with an error:
+> ```console
+> The output file 'examples/checksums.csv' already exists.
+> Pass force=True (Python) or use the -f/--force flag (CLI) to overwrite it.
+> ```
+  Pass `--force` (or `-f`) to overwrite:
+```bash
+sum-buddy --force --output-file examples/checksums.csv examples/example_content/
+```
 
 - **Ignore Contents Based on Patterns:**
 ```bash
@@ -182,6 +193,11 @@ get_checksums(input_path, output_file, ignore_file=ignore_file, algorithm=alg)
 
 # outputs status bar followed by
 # Checksums written to examples/checksums.csv
+
+# If output_file already exists, get_checksums raises
+# sumbuddy.exceptions.OutputFileExistsError (a subclass of FileExistsError);
+# pass force=True to overwrite instead
+get_checksums(input_path, output_file, force=True)
 
 # To gather a list of file paths according to ignore/include patterns
 file_paths = gather_file_paths(input_path, ignore_file=ignore_file)
