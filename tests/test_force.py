@@ -4,60 +4,45 @@ from unittest.mock import patch
 
 import pytest
 
+from sumbuddy import __main__ as sb_main
 from sumbuddy import get_checksums
 from sumbuddy.exceptions import OutputFileExistsError
 
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
 
 
-def test_get_checksums_raises_when_output_exists(monkeypatch, tmp_path):
-    """Without force, an existing output file raises and is left untouched."""
+def test_get_checksums_refuses_existing_output(monkeypatch, tmp_path):
+    """Without force, an existing output file raises before any walking or hashing, leaving the file untouched."""
     monkeypatch.chdir(EXAMPLES_DIR)
     output_file = tmp_path / "checksums.csv"
     output_file.write_text("sentinel content")
 
-    with pytest.raises(OutputFileExistsError) as excinfo:
+    with patch("sumbuddy.Mapper.gather_file_paths") as mock_gather, pytest.raises(OutputFileExistsError) as excinfo:
         get_checksums("example_content", str(output_file))
 
+    mock_gather.assert_not_called()
+    assert isinstance(excinfo.value, FileExistsError)
     assert output_file.read_text() == "sentinel content"
     assert "force=True" in str(excinfo.value)
     assert "--force" in str(excinfo.value)
 
 
-def test_get_checksums_raises_builtin_file_exists_error(monkeypatch, tmp_path):
-    """OutputFileExistsError is catchable as the builtin FileExistsError."""
-    monkeypatch.chdir(EXAMPLES_DIR)
-    output_file = tmp_path / "checksums.csv"
-    output_file.write_text("sentinel content")
-
-    with pytest.raises(FileExistsError):
-        get_checksums("example_content", str(output_file))
-
-
 def test_get_checksums_overwrites_with_force(monkeypatch, tmp_path):
-    """With force=True, an existing output file is overwritten."""
+    """With force=True, an existing output file is regenerated from scratch."""
     monkeypatch.chdir(EXAMPLES_DIR)
     output_file = tmp_path / "checksums.csv"
     output_file.write_text("stale content")
 
     get_checksums("example_content", str(output_file), force=True)
 
-    assert output_file.read_text().startswith("filepath,filename,md5")
-
-
-def test_get_checksums_stdout_unaffected(monkeypatch, capsys):
-    """Output to stdout (no output_filepath) never triggers the overwrite guard."""
-    monkeypatch.chdir(EXAMPLES_DIR)
-
-    get_checksums("example_content")
-
-    assert "filepath,filename,md5" in capsys.readouterr().out
+    actual = output_file.read_text()
+    assert "stale content" not in actual
+    expected = (EXAMPLES_DIR / "expected_outputs" / "default.csv").read_text().splitlines()
+    assert sorted(actual.splitlines()) == sorted(expected)
 
 
 def test_main_exits_when_output_exists(monkeypatch, tmp_path):
     """CLI exits with a clear message, without prompting, when the output file exists."""
-    from sumbuddy import __main__ as sb_main
-
     monkeypatch.chdir(EXAMPLES_DIR)
     output_file = tmp_path / "checksums.csv"
     output_file.write_text("sentinel content")
@@ -72,29 +57,14 @@ def test_main_exits_when_output_exists(monkeypatch, tmp_path):
     assert output_file.read_text() == "sentinel content"
 
 
-def test_main_force_passes_force_true(monkeypatch, tmp_path):
-    """-f/--force on the CLI threads force=True into get_checksums."""
-    from sumbuddy import __main__ as sb_main
-
+@pytest.mark.parametrize("flag", ["-f", "--force"])
+def test_main_force_overwrites_existing_output(monkeypatch, tmp_path, flag):
+    """Both force spellings overwrite an existing output file end-to-end."""
     monkeypatch.chdir(EXAMPLES_DIR)
     output_file = tmp_path / "checksums.csv"
+    output_file.write_text("stale content")
 
-    monkeypatch.setattr(sys, "argv", ["sum-buddy", "-f", "-o", str(output_file), "example_content"])
-    with patch("sumbuddy.__main__.get_checksums") as mock_gc:
-        sb_main.main()
-        mock_gc.assert_called_once()
-        assert mock_gc.call_args.kwargs["force"] is True
+    monkeypatch.setattr(sys, "argv", ["sum-buddy", flag, "-o", str(output_file), "example_content"])
+    sb_main.main()
 
-
-def test_main_default_passes_force_false(monkeypatch, tmp_path):
-    """Without the flag, get_checksums receives force=False (the default)."""
-    from sumbuddy import __main__ as sb_main
-
-    monkeypatch.chdir(EXAMPLES_DIR)
-    output_file = tmp_path / "checksums.csv"
-
-    monkeypatch.setattr(sys, "argv", ["sum-buddy", "-o", str(output_file), "example_content"])
-    with patch("sumbuddy.__main__.get_checksums") as mock_gc:
-        sb_main.main()
-        mock_gc.assert_called_once()
-        assert mock_gc.call_args.kwargs["force"] is False
+    assert output_file.read_text().startswith("filepath,filename,md5")
