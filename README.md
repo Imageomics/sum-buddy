@@ -194,9 +194,7 @@ get_checksums(input_path, output_file, ignore_file=ignore_file, algorithm=alg)
 # outputs status bar followed by
 # Checksums written to examples/checksums.csv
 
-# If output_file already exists, get_checksums raises
-# sumbuddy.exceptions.OutputFileExistsError (a subclass of FileExistsError);
-# pass force=True to overwrite instead
+# If output_file already exists, get_checksums raises sumbuddy.exceptions.OutputFileExistsError (a subclass of FileExistsError); pass force=True to overwrite instead
 get_checksums(input_path, output_file, force=True)
 
 # To gather a list of file paths according to ignore/include patterns
