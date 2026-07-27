@@ -1,10 +1,13 @@
 import hashlib
 import os
 import tempfile
-import pytest
 from unittest.mock import patch
-from sumbuddy.hasher import Hasher
+
+import pytest
+
 from sumbuddy.exceptions import LengthUsedForFixedLengthHashError
+from sumbuddy.hasher import Hasher
+
 
 def is_algorithm_available(algorithm):
     return algorithm in hashlib.algorithms_available
@@ -39,12 +42,14 @@ blake_algorithms_with_defaults = {'blake2s': 32, 'blake2b': 64}
 
 @pytest.fixture(scope="module")
 def temp_file():
-    temp_file = tempfile.NamedTemporaryFile(delete=False)
-    temp_file.write(b'This is a test file.')
-    temp_file_path = temp_file.name
-    temp_file.close()
-    yield temp_file_path
-    os.remove(temp_file_path)
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(b'This is a test file.')
+        temp_file_path = temp_file.name
+
+    try:
+        yield temp_file_path
+    finally:
+        os.remove(temp_file_path)
 
 @pytest.mark.parametrize("algorithm", checksums.keys())
 def test_all_algorithms_with_defaults(temp_file, algorithm):

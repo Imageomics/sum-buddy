@@ -1,5 +1,7 @@
-import pathspec
 import os
+
+import pathspec
+
 
 class Filter:
     def __init__(self):

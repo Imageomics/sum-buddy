@@ -1,10 +1,12 @@
 
-import unittest
 import os
+import unittest
 from unittest.mock import patch
+
+from sumbuddy.archive import ArchiveHandler
 from sumbuddy.filter import Filter
 from sumbuddy.hasher import Hasher
-from sumbuddy.archive import ArchiveHandler
+
 
 class TestFilter(unittest.TestCase):
     def setUp(self):

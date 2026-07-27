@@ -8,9 +8,8 @@ from unittest.mock import patch
 import pytest
 
 from sumbuddy.archive import ArchiveHandler
-from sumbuddy.mapper import Mapper
 from sumbuddy.hasher import Hasher
-
+from sumbuddy.mapper import Mapper
 
 TEST_ZIP = Path(__file__).parent / "test_archive.zip"
 

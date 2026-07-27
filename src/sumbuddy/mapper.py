@@ -1,7 +1,13 @@
 import os
-from sumbuddy.filter import Filter
-from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, NotADirectoryError
+
 from sumbuddy.archive import ArchiveHandler
+from sumbuddy.exceptions import (
+    EmptyInputDirectoryError,
+    NoFilesAfterFilteringError,
+    NotADirectoryError,
+)
+from sumbuddy.filter import Filter
+
 
 class Mapper:
     def __init__(self):

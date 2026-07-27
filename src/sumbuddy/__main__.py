@@ -1,14 +1,23 @@
 import argparse
-from sumbuddy.__about__ import __version__
-from sumbuddy.hasher import Hasher
-from sumbuddy.mapper import Mapper
-from sumbuddy.archive import ArchiveHandler
-from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError, OutputFileExistsError
 import csv
 import hashlib
-from tqdm import tqdm
-import sys
 import os
+import sys
+from contextlib import nullcontext
+
+from tqdm import tqdm
+
+from sumbuddy.__about__ import __version__
+from sumbuddy.archive import ArchiveHandler
+from sumbuddy.exceptions import (
+    EmptyInputDirectoryError,
+    LengthUsedForFixedLengthHashError,
+    NoFilesAfterFilteringError,
+    OutputFileExistsError,
+)
+from sumbuddy.hasher import Hasher
+from sumbuddy.mapper import Mapper
+
 
 def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None, archive_dive=True, force=False):
     """
@@ -53,9 +62,12 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
 
     hasher = Hasher(algorithm)
     archive_handler = ArchiveHandler()
-    output_stream = open(output_filepath, 'w', newline='') if output_filepath else sys.stdout
 
-    try:
+    with (
+        open(output_filepath, 'w', newline='')
+        if output_filepath
+        else nullcontext(sys.stdout)
+    ) as output_stream:
         writer = csv.writer(output_stream)
         writer.writerow(["filepath", "filename", f"{algorithm}"])
 
@@ -79,9 +91,6 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
                     checksum = hasher.checksum_file(file_obj, algorithm=algorithm, length=length)
                     writer.writerow([virtual_path, os.path.basename(member), checksum])
                     pbar.update(1)
-    finally:
-        if output_filepath:
-            output_stream.close()
 
     if output_filepath:
         print(f"{algorithm} checksums for {input_path} written to {output_filepath}")

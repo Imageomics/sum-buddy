@@ -1,10 +1,11 @@
-import unittest
-from unittest.mock import patch, mock_open
 import os
 import tempfile
+import unittest
 from io import StringIO
+from unittest.mock import mock_open, patch
 
 from sumbuddy import get_checksums
+
 
 class TestGetChecksums(unittest.TestCase):
 
