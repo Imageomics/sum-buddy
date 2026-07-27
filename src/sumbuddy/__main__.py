@@ -3,14 +3,14 @@ from sumbuddy.__about__ import __version__
 from sumbuddy.hasher import Hasher
 from sumbuddy.mapper import Mapper
 from sumbuddy.archive import ArchiveHandler
-from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError
+from sumbuddy.exceptions import EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError, OutputFileExistsError
 import csv
 import hashlib
 from tqdm import tqdm
 import sys
 import os
 
-def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None, archive_dive=True):
+def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hidden=False, algorithm='md5', length=None, archive_dive=True, force=False):
     """
     Generate a CSV file with the filepath, filename, and checksum of all files in the input directory according to patterns to ignore. Checksum column is labeled by the selected algorithm (e.g., 'md5' or 'sha256').
 
@@ -23,7 +23,11 @@ def get_checksums(input_path, output_filepath=None, ignore_file=None, include_hi
     algorithm - String. Algorithm to use for checksums. Default: 'md5', see options with 'hashlib.algorithms_available'.
     length - Integer [conditionally optional]. Length of the digest for SHAKE (required) and BLAKE (optional) algorithms in bytes.
     archive_dive - Boolean [optional]. Whether to descend into archive files and hash their members. When False, archives are hashed as opaque files. Default: True.
+    force - Boolean [optional]. Whether to overwrite output_filepath if it already exists. Default is False, which raises OutputFileExistsError when the file exists.
     """
+    if output_filepath and not force and os.path.exists(output_filepath):
+        raise OutputFileExistsError(output_filepath)
+
     mapper = Mapper()
 
     if os.path.isfile(input_path):
@@ -89,6 +93,7 @@ def main():
     parser.add_argument("-V", "--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("input_path", help="File or directory to traverse for files")
     parser.add_argument("-o", "--output-file", help="Filepath for the output CSV file; defaults to stdout", default=None)
+    parser.add_argument("-f", "--force", action="store_true", help="Overwrite the output file if it already exists")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-i", "--ignore-file", help="Filepath for the ignore patterns file")
     group.add_argument("-H", "--include-hidden", action="store_true", help="Include hidden files")
@@ -101,11 +106,6 @@ def main():
     if args.output_file and not args.output_file.endswith('.csv'):
         parser.error("Output file is in CSV format; extension should be '.csv'")
 
-    if args.output_file and os.path.exists(args.output_file):
-        overwrite = input(f"Output file '{args.output_file}' already exists. Overwrite? [y/n]: ")
-        if overwrite.lower() != 'y':
-            sys.exit("Exited without executing")
-
     try:
         get_checksums(
             args.input_path,
@@ -115,8 +115,9 @@ def main():
             algorithm=args.algorithm,
             length=args.length,
             archive_dive=args.archive_dive,
+            force=args.force,
         )
-    except (EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError) as e:
+    except (EmptyInputDirectoryError, NoFilesAfterFilteringError, LengthUsedForFixedLengthHashError, OutputFileExistsError) as e:
         sys.exit(str(e))
 
 
