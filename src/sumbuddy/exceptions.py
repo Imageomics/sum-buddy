@@ -20,5 +20,5 @@ class LengthUsedForFixedLengthHashError(Exception):
 
 class OutputFileExistsError(FileExistsError):
     def __init__(self, output_filepath):
-        message = f"The output file '{output_filepath}' already exists. \nPass force=True (Python) or use the -f/--force flag (CLI) to overwrite it."
+        message = f"The output file '{output_filepath}' already exists.\nPass force=True (Python) or use the -f/--force flag (CLI) to overwrite it."
         super().__init__(message)
