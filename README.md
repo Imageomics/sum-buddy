@@ -215,10 +215,14 @@ To develop the package further:
 ```bash
 pip install -e ".[dev]"
 ```
-3. Install pre-commit hook
+3. Install pre-commit hook. This requires [uv](https://docs.astral.sh/uv/), which the hook uses to run Ruff at the version pinned in `pyproject.toml`.
 ```bash
 pre-commit install
 ```
+
+### Linting
+
+Ruff is pinned in `pyproject.toml`, which is the single source of truth for the pre-commit hook, CI, and local `ruff check .` runs. Ruff version bumps and their repo-wide application should get their own PRs so lint compliance can stay focused and intentional.
 
 ### Tests
 
