@@ -1,5 +1,7 @@
 import hashlib
+
 from sumbuddy.exceptions import LengthUsedForFixedLengthHashError
+
 
 class Hasher:
     def __init__(self, algorithm='md5'):

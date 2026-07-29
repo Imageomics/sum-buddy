@@ -1,10 +1,11 @@
-import unittest
-from unittest.mock import patch, mock_open
 import os
 import tempfile
+import unittest
 from io import StringIO
+from unittest.mock import mock_open, patch
 
 from sumbuddy import get_checksums
+
 
 class TestGetChecksums(unittest.TestCase):
 
@@ -20,7 +21,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('builtins.open', new_callable=mock_open)
     @patch('sumbuddy.Hasher.checksum_file', return_value='dummychecksum')
     def test_get_checksums_single_file_to_file(self, mock_checksum, mock_open, mock_isfile):
-        get_checksums(self.input_path, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
+        get_checksums(self.input_path, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm, force=True)
         
         mock_open.assert_called_with(self.output_filepath, 'w', newline='')
         handle = mock_open()
@@ -90,7 +91,7 @@ class TestGetChecksums(unittest.TestCase):
     @patch('sumbuddy.Mapper.gather_file_paths', return_value=(['file1.txt', 'file2.txt'], []))
     @patch('sumbuddy.Hasher.checksum_file', side_effect=lambda x, **kwargs: 'dummychecksum')
     def test_get_checksums_to_file(self, mock_checksum, mock_gather, mock_open, mock_exists, mock_abspath):
-        get_checksums(self.input_path, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm)
+        get_checksums(self.input_path, self.output_filepath, ignore_file=None, include_hidden=False, algorithm=self.algorithm, force=True)
         
         mock_open.assert_called_with(self.output_filepath, 'w', newline='')
         handle = mock_open()
