@@ -25,13 +25,6 @@ dependencies = [
   "pathspec"
 ]
 
-[project.optional-dependencies]
-dev = [
-  "pytest",
-  "ruff",
-  "pre-commit"
-]
-
 keywords = [
   "checksum",
   "md5",
@@ -42,6 +35,13 @@ keywords = [
   "images",
   "verifier",
   "file-verification",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff==0.16.0",
+  "pre-commit"
 ]
 
 [project.urls]
